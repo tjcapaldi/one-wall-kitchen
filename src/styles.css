@@ -132,13 +132,61 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* ---------------------------------------------------------------
+ * One Wall Kitchen — studio design system
+ * ------------------------------------------------------------- */
+:root {
+  --paper: oklch(0.985 0.003 90);
+  --ink: oklch(0.22 0.006 80);
+  --ink-soft: oklch(0.53 0.008 80);
+  --line: oklch(0.87 0.006 85);
+  --shell: oklch(0.965 0.004 90);
+
+  /* drawing surface */
+  --drawing-wall: oklch(0.99 0.002 90);
+  --drawing-grid: oklch(0.9 0.005 85);
+  --drawing-ink: oklch(0.24 0.006 80);
+  --drawing-select: oklch(0.42 0.03 250);
+  --drawing-guide: oklch(0.55 0.09 30);
+
+  /* studio backgrounds (muted, earth) */
+  --studio-gray: oklch(0.62 0.004 90);
+  --studio-stone: oklch(0.66 0.012 80);
+  --studio-sand: oklch(0.72 0.026 82);
+  --studio-clay: oklch(0.62 0.035 45);
+  --studio-sage: oklch(0.66 0.022 140);
+  --studio-olive: oklch(0.58 0.028 110);
+  --studio-slate: oklch(0.52 0.012 250);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-shell: var(--shell);
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --shadow-drawing: 0 1px 2px oklch(0 0 0 / 0.08), 0 18px 40px -24px oklch(0 0 0 / 0.35);
+  --shadow-panel: 0 1px 2px oklch(0 0 0 / 0.05);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--studio-gray);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-feature-settings: "tnum" 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
   }
 }
