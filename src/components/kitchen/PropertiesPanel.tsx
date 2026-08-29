@@ -1,0 +1,278 @@
+import { CATALOG, DOOR_STYLES, FINISHES, HARDWARE, finishOf } from "@/lib/kitchen/catalog";
+import { useKitchen } from "@/lib/kitchen/store";
+import { inchLabel, inchWithFeet, toFeetInches } from "@/lib/kitchen/format";
+import type { DoorStyleId, FinishId, HardwareId } from "@/lib/kitchen/types";
+
+export function PropertiesPanel() {
+  const { selected, design, updateComponents, align, distribute, group, ungroup, duplicateSelected, removeSelected } =
+    useKitchen();
+
+  if (selected.length === 0) {
+    return (
+      <PanelShell title="Properties">
+        <div className="px-5 py-6">
+          <p className="text-xs leading-relaxed text-ink-soft">
+            Nothing selected. Click a component on the wall to edit its dimensions, position and
+            finish. Shift-click or drag on the wall to select several.
+          </p>
+          <dl className="mt-6 space-y-3 border-t border-line pt-5 text-xs">
+            <Row label="Wall width" value={`${inchLabel(design.wall.width)} in (${toFeetInches(design.wall.width)})`} />
+            <Row label="Wall height" value={`${inchLabel(design.wall.height)} in (${toFeetInches(design.wall.height)})`} />
+            <Row label="Components" value={`${design.components.length}`} />
+            <Row label="Groups" value={`${design.groups.length}`} />
+          </dl>
+        </div>
+      </PanelShell>
+    );
+  }
+
+  if (selected.length > 1) {
+    const grouped = selected.some((c) => c.groupId);
+    return (
+      <PanelShell title={`${selected.length} selected`}>
+        <div className="space-y-6 px-5 py-5">
+          <Section label="Align">
+            <div className="grid grid-cols-3 gap-1">
+              <MiniButton onClick={() => align("left")}>Left</MiniButton>
+              <MiniButton onClick={() => align("hcenter")}>Center</MiniButton>
+              <MiniButton onClick={() => align("right")}>Right</MiniButton>
+              <MiniButton onClick={() => align("bottom")}>Bottom</MiniButton>
+              <MiniButton onClick={() => align("vcenter")}>Middle</MiniButton>
+              <MiniButton onClick={() => align("top")}>Top</MiniButton>
+            </div>
+          </Section>
+          <Section label="Distribute">
+            <div className="grid grid-cols-2 gap-1">
+              <MiniButton onClick={() => distribute("h")} disabled={selected.length < 3}>
+                Horizontally
+              </MiniButton>
+              <MiniButton onClick={() => distribute("v")} disabled={selected.length < 3}>
+                Vertically
+              </MiniButton>
+            </div>
+          </Section>
+          <Section label="Organise">
+            <div className="grid grid-cols-2 gap-1">
+              <MiniButton onClick={group}>Group</MiniButton>
+              <MiniButton onClick={ungroup} disabled={!grouped}>
+                Ungroup
+              </MiniButton>
+              <MiniButton onClick={duplicateSelected}>Duplicate</MiniButton>
+              <MiniButton onClick={removeSelected}>Delete</MiniButton>
+            </div>
+          </Section>
+          <Section label="Finish (all selected)">
+            <FinishGrid
+              value={selected[0].finish}
+              onChange={(finish) =>
+                updateComponents(selected.map((c) => ({ id: c.id, patch: { finish } })))
+              }
+            />
+          </Section>
+        </div>
+      </PanelShell>
+    );
+  }
+
+  const comp = selected[0];
+  const entry = CATALOG[comp.type];
+  const patch = (p: Parameters<typeof updateComponents>[0][number]["patch"]) =>
+    updateComponents([{ id: comp.id, patch: p }]);
+
+  return (
+    <PanelShell title={entry.label}>
+      <div className="space-y-6 px-5 py-5">
+        <Section label="Dimensions">
+          <div className="grid grid-cols-2 gap-3">
+            <NumberField
+              label="Width"
+              value={comp.w}
+              min={entry.min.w}
+              max={entry.max.w}
+              disabled={!entry.resizable.w}
+              onChange={(w) => patch({ w })}
+            />
+            <NumberField
+              label="Height"
+              value={comp.h}
+              min={entry.min.h}
+              max={entry.max.h}
+              disabled={!entry.resizable.h}
+              onChange={(h) => patch({ h })}
+            />
+            {entry.depth > 0 && (
+              <NumberField label="Depth" value={comp.depth} min={4} max={36} onChange={(depth) => patch({ depth })} />
+            )}
+          </div>
+          <p className="mt-2 text-[10px] text-ink-soft">
+            {inchWithFeet(comp.w)} wide · limits {inchLabel(entry.min.w)}–{inchLabel(entry.max.w)} in
+          </p>
+        </Section>
+
+        <Section label="Position">
+          <div className="grid grid-cols-2 gap-3">
+            <NumberField label="From left" value={comp.x} min={0} max={design.wall.width - comp.w} onChange={(x) => patch({ x })} />
+            <NumberField label="From floor" value={comp.y} min={0} max={design.wall.height - comp.h} onChange={(y) => patch({ y })} />
+          </div>
+          <p className="mt-2 text-[10px] text-ink-soft">
+            Left edge at {inchWithFeet(comp.x)} · top at {inchWithFeet(comp.y + comp.h)}
+          </p>
+        </Section>
+
+        <Section label="Finish">
+          <FinishGrid value={comp.finish} onChange={(finish) => patch({ finish })} />
+        </Section>
+
+        {entry.doorStyle && (
+          <Section label="Door style">
+            <div className="grid grid-cols-4 gap-1">
+              {DOOR_STYLES.map((d) => (
+                <MiniButton
+                  key={d.id}
+                  active={comp.doorStyle === d.id}
+                  onClick={() => patch({ doorStyle: d.id as DoorStyleId })}
+                >
+                  {d.label}
+                </MiniButton>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {entry.hardware && (
+          <Section label="Hardware">
+            <div className="grid grid-cols-4 gap-1">
+              {HARDWARE.map((hw) => (
+                <MiniButton
+                  key={hw.id}
+                  active={comp.hardware === hw.id}
+                  onClick={() => patch({ hardware: hw.id as HardwareId })}
+                >
+                  {hw.label}
+                </MiniButton>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        <Section label="Component">
+          <div className="grid grid-cols-2 gap-1">
+            <MiniButton onClick={duplicateSelected}>Duplicate</MiniButton>
+            <MiniButton onClick={removeSelected}>Delete</MiniButton>
+          </div>
+          {entry.note && <p className="mt-2 text-[10px] text-ink-soft">{entry.note}</p>}
+        </Section>
+      </div>
+    </PanelShell>
+  );
+}
+
+function PanelShell({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-line px-5 pb-3 pt-5">
+        <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">{title}</h2>
+      </div>
+      <div className="flex-1 overflow-y-auto">{children}</div>
+    </div>
+  );
+}
+
+export function Section({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <h3 className="mb-2 text-[10px] uppercase tracking-[0.16em] text-ink-soft">{label}</h3>
+      {children}
+    </section>
+  );
+}
+
+export function MiniButton({
+  children,
+  onClick,
+  active,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  active?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      data-active={active ? "" : undefined}
+      className="border border-line px-2 py-1.5 text-[11px] text-ink transition-colors hover:bg-paper disabled:cursor-not-allowed disabled:opacity-35 data-[active]:border-ink data-[active]:bg-ink data-[active]:text-paper"
+    >
+      {children}
+    </button>
+  );
+}
+
+function NumberField({
+  label,
+  value,
+  min,
+  max,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  disabled?: boolean;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[10px] text-ink-soft">{label}</span>
+      <span className="flex items-center border border-line bg-paper focus-within:border-ink">
+        <input
+          type="number"
+          value={Math.round(value * 100) / 100}
+          min={min}
+          max={max}
+          step={0.25}
+          disabled={disabled}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            if (Number.isFinite(v)) onChange(v);
+          }}
+          className="w-full bg-transparent px-2 py-1.5 text-[12px] tabular-nums text-ink outline-none disabled:opacity-40"
+        />
+        <span className="pr-2 text-[10px] text-ink-soft">in</span>
+      </span>
+    </label>
+  );
+}
+
+function FinishGrid({ value, onChange }: { value: FinishId; onChange: (f: FinishId) => void }) {
+  return (
+    <div className="grid grid-cols-5 gap-1">
+      {FINISHES.map((f) => (
+        <button
+          key={f.id}
+          title={f.label}
+          onClick={() => onChange(f.id)}
+          data-active={value === f.id ? "" : undefined}
+          className="h-7 border border-line data-[active]:ring-1 data-[active]:ring-ink data-[active]:ring-offset-1"
+          style={{ backgroundColor: f.fill }}
+        >
+          <span className="sr-only">{f.label}</span>
+        </button>
+      ))}
+      <p className="col-span-5 mt-1 text-[10px] text-ink-soft">{finishOf(value).label}</p>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="text-ink-soft">{label}</dt>
+      <dd className="tabular-nums text-ink">{value}</dd>
+    </div>
+  );
+}
