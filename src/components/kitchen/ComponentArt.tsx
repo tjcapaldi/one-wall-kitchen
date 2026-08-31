@@ -17,7 +17,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "tall-cabinet":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           {doorFronts(comp, f)}
         </g>
       );
@@ -26,7 +26,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
       const rh = h / rows;
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           {Array.from({ length: rows }).map((_, i) => (
             <g key={i}>
               <rect x={1} y={i * rh + 1} width={w - 2} height={rh - 2} {...common} />
@@ -62,14 +62,14 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "countertop":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <line x1={0} y1={h * 0.45} x2={w} y2={h * 0.45} {...common} />
         </g>
       );
     case "refrigerator":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} rx={0.6} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} rx={0.6} />
           <line x1={0} y1={h * 0.36} x2={w} y2={h * 0.36} {...common} />
           <line x1={w * 0.5} y1={h * 0.36} x2={w * 0.5} y2={h} {...common} />
           <line x1={w * 0.5 - 2.5} y1={4} x2={w * 0.5 - 2.5} y2={h * 0.3} {...common} strokeWidth={1.2} />
@@ -79,7 +79,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "range":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <rect x={1.5} y={h * 0.28} width={w - 3} height={h * 0.62} {...common} />
           <line x1={1.5} y1={h * 0.2} x2={w - 1.5} y2={h * 0.2} {...common} strokeWidth={1.2} />
           {[0.28, 0.72].map((cx) => (
@@ -90,7 +90,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "oven":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <rect x={2} y={h * 0.28} width={w - 4} height={h * 0.6} {...common} />
           <line x1={2} y1={h * 0.18} x2={w - 2} y2={h * 0.18} {...common} strokeWidth={1.2} />
         </g>
@@ -98,7 +98,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "dishwasher":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <line x1={0} y1={h * 0.18} x2={w} y2={h * 0.18} {...common} />
           <line x1={2} y1={h * 0.1} x2={w - 2} y2={h * 0.1} {...common} strokeWidth={1.2} />
           <rect x={3} y={h * 0.3} width={w - 6} height={h * 0.55} {...common} strokeDasharray="1 2" />
@@ -107,7 +107,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "microwave":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <rect x={2} y={2} width={w * 0.62} height={h - 4} {...common} />
           <line x1={w - 5} y1={3} x2={w - 5} y2={h - 3} {...common} strokeDasharray="1 1.5" />
         </g>
@@ -126,7 +126,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "window":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill="none" {...common} strokeWidth={0.9} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill="none" strokeWidth={0.9} />
           <rect x={2} y={2} width={w - 4} height={h - 4} {...common} />
           <line x1={w / 2} y1={2} x2={w / 2} y2={h - 2} {...common} />
           <line x1={2} y1={h / 2} x2={w - 2} y2={h / 2} {...common} />
@@ -135,7 +135,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "door":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill="none" {...common} strokeWidth={0.9} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill="none" strokeWidth={0.9} />
           <rect x={2.5} y={2.5} width={w - 5} height={h - 2.5} {...common} strokeDasharray="2 2" />
           <circle cx={w - 6} cy={h * 0.52} r={1.2} {...common} />
         </g>
@@ -143,7 +143,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "sink":
       return (
         <g>
-          <path d={`M 0 0 L ${w} 0 L ${w} ${h} L 0 ${h} Z`} fill={f.fill} {...common} />
+          <path d={`M 0 0 L ${w} 0 L ${w} ${h} L 0 ${h} Z`} {...common} fill={f.fill} />
           <path d={`M 3 2 L ${w - 3} 2 L ${w - 4} ${h - 2} L 4 ${h - 2} Z`} {...common} />
           <path
             d={`M ${w / 2} 2 C ${w / 2} -6 ${w / 2 + 8} -6 ${w / 2 + 8} 1`}
@@ -183,7 +183,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     case "stool":
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h * 0.12} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h * 0.12} {...common} fill={f.fill} />
           <line x1={w * 0.18} y1={h * 0.12} x2={w * 0.1} y2={h} {...common} />
           <line x1={w * 0.82} y1={h * 0.12} x2={w * 0.9} y2={h} {...common} />
           <line x1={w * 0.14} y1={h * 0.62} x2={w * 0.86} y2={h * 0.62} {...common} />
@@ -192,7 +192,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
     default:
       return (
         <g>
-          <rect x={0} y={0} width={w} height={h} fill={f.fill} {...common} />
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
           <line x1={0} y1={0} x2={w} y2={h} {...common} strokeDasharray="1 2" />
         </g>
       );
