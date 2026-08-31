@@ -49,8 +49,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
                 y={Math.min(y, h - 1.5)}
                 width={w}
                 height={1.5}
-                fill={f.fill}
                 {...common}
+                fill={f.fill}
               />
             );
           })}
@@ -117,8 +117,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
         <g>
           <path
             d={`M ${w * 0.28} 0 L ${w * 0.72} 0 L ${w * 0.72} ${h * 0.45} L ${w} ${h * 0.8} L ${w} ${h} L 0 ${h} L 0 ${h * 0.8} L ${w * 0.28} ${h * 0.45} Z`}
-            fill={f.fill}
             {...common}
+            fill={f.fill}
           />
           <line x1={0} y1={h * 0.86} x2={w} y2={h * 0.86} {...common} />
         </g>
@@ -158,8 +158,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
           <line x1={w / 2} y1={0} x2={w / 2} y2={h * 0.62} {...common} />
           <path
             d={`M ${w / 2 - w / 2} ${h} L ${w / 2 - w * 0.18} ${h * 0.62} L ${w / 2 + w * 0.18} ${h * 0.62} L ${w} ${h} Z`}
-            fill={f.fill}
             {...common}
+            fill={f.fill}
           />
         </g>
       );
@@ -168,8 +168,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
         <g>
           <path
             d={`M ${w * 0.28} ${h * 0.55} L ${w * 0.72} ${h * 0.55} L ${w * 0.64} ${h} L ${w * 0.36} ${h} Z`}
-            fill={f.fill}
             {...common}
+            fill={f.fill}
           />
           {[0.2, 0.5, 0.8].map((t, i) => (
             <path
