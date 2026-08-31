@@ -77,8 +77,8 @@ export function validateDesign(input: unknown): Design {
     id: typeof d.id === "string" ? d.id : `imported_${Date.now().toString(36)}`,
     name: typeof d.name === "string" && d.name.trim() ? d.name : "Imported design",
     wall: {
-      width: clamp(d.wall.width, 36, 480),
-      height: clamp(d.wall.height, 72, 180),
+      width: clamp(d.wall!.width, 36, 480),
+      height: clamp(d.wall!.height, 72, 180),
     },
     components,
     groups: Array.isArray(d.groups)
