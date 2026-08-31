@@ -78,14 +78,18 @@ function Editor() {
       />
 
       <div className="relative flex min-h-0 flex-1">
-        <ComponentLibrary />
+        <aside className="hidden w-[260px] shrink-0 border-r border-line bg-shell lg:block">
+          <ComponentLibrary />
+        </aside>
         <main
           className="min-w-0 flex-1"
           style={{ backgroundColor: `var(--studio-${background}, var(--color-shell))` }}
         >
           <CanvasStage />
         </main>
-        <PropertiesPanel />
+        <aside className="hidden w-[300px] shrink-0 overflow-y-auto border-l border-line bg-shell xl:block">
+          <PropertiesPanel />
+        </aside>
 
         <AppearancePanel
           open={appearanceOpen}
