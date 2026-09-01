@@ -247,3 +247,93 @@ function hardwareMark(
     <line x1={cx - len / 2} y1={cy} x2={cx + len / 2} y2={cy} {...stroke} />
   );
 }
+
+/**
+ * Refrigerator drawn as an elevation: the door configuration and handle
+ * visibility both change the line-work.
+ */
+function fridgeArt(comp: KComponent, f: ReturnType<typeof finishOf>) {
+  const { w, h } = comp;
+  const line = { stroke: f.line, strokeWidth: 0.5, fill: "none", vectorEffect: "non-scaling-stroke" as const };
+  const grip = { stroke: f.ink, strokeWidth: 1.2, fill: "none", vectorEffect: "non-scaling-stroke" as const };
+  const style = comp.fridgeStyle ?? "french";
+  const show = (comp.fridgeHandles ?? "visible") === "visible";
+  const vBar = (x: number, y1: number, y2: number) => <line x1={x} y1={y1} x2={x} y2={y2} {...grip} />;
+  const hBar = (y: number, x1: number, x2: number) => <line x1={x1} y1={y} x2={x2} y2={y} {...grip} />;
+
+  const parts: React.ReactNode[] = [];
+  if (style === "french") {
+    const split = h * 0.62;
+    parts.push(<line key="s" x1={0} y1={split} x2={w} y2={split} {...line} />);
+    parts.push(<line key="m" x1={w / 2} y1={0} x2={w / 2} y2={split} {...line} />);
+    if (show) {
+      parts.push(<g key="hh">{vBar(w / 2 - 2.5, h * 0.12, split - 4)}{vBar(w / 2 + 2.5, h * 0.12, split - 4)}{hBar(split + 5, w * 0.34, w * 0.66)}</g>);
+    }
+  } else if (style === "side-by-side") {
+    const split = w * 0.44;
+    parts.push(<line key="s" x1={split} y1={0} x2={split} y2={h} {...line} />);
+    if (show) {
+      parts.push(<g key="hh">{vBar(split - 2.5, h * 0.1, h * 0.5)}{vBar(split + 2.5, h * 0.1, h * 0.5)}</g>);
+    }
+  } else if (style === "top-freezer") {
+    const split = h * 0.3;
+    parts.push(<line key="s" x1={0} y1={split} x2={w} y2={split} {...line} />);
+    if (show) {
+      parts.push(<g key="hh">{vBar(w - 4, split * 0.25, split * 0.8)}{vBar(w - 4, split + 5, h * 0.75)}</g>);
+    }
+  } else {
+    const split = h * 0.68;
+    parts.push(<line key="s" x1={0} y1={split} x2={w} y2={split} {...line} />);
+    if (show) {
+      parts.push(<g key="hh">{vBar(w - 4, h * 0.12, split - 5)}{hBar(split + 5, w * 0.34, w * 0.66)}</g>);
+    }
+  }
+
+  return (
+    <g>
+      <rect x={0} y={0} width={w} height={h} {...line} fill={f.fill} rx={0.6} />
+      {!show && <rect x={1.2} y={1.2} width={w - 2.4} height={h - 2.4} {...line} strokeDasharray="1 2" />}
+      {parts}
+    </g>
+  );
+}
+
+/**
+ * Straight-on elevation: the basin sits below the counter and is not visible,
+ * so only the faucet and its controls are drawn, over a light footprint mark.
+ */
+function sinkArt(comp: KComponent, f: ReturnType<typeof finishOf>) {
+  const { w, h } = comp;
+  const line = { stroke: f.line, strokeWidth: 0.5, fill: "none", vectorEffect: "non-scaling-stroke" as const };
+  const deck = h;
+  const holes = comp.faucetHoles ?? 1;
+  const cx = w / 2;
+  const spoutTop = h * 0.18;
+  const reach = Math.min(6, w * 0.22);
+
+  return (
+    <g>
+      {/* subtle basin-width footprint */}
+      <line x1={0} y1={deck} x2={w} y2={deck} {...line} strokeDasharray="2 2" strokeWidth={0.4} opacity={0.55} />
+      <line x1={0} y1={deck - 1.6} x2={0} y2={deck} {...line} strokeWidth={0.4} opacity={0.55} />
+      <line x1={w} y1={deck - 1.6} x2={w} y2={deck} {...line} strokeWidth={0.4} opacity={0.55} />
+      {/* faucet: column + gooseneck */}
+      <line x1={cx} y1={deck} x2={cx} y2={spoutTop + 1.5} {...line} strokeWidth={0.9} />
+      <path
+        d={`M ${cx} ${spoutTop + 1.5} C ${cx} ${spoutTop - 1} ${cx + reach} ${spoutTop - 1} ${cx + reach} ${spoutTop + 2.5}`}
+        {...line}
+        strokeWidth={0.9}
+      />
+      {/* controls vary with hole count */}
+      {holes === 1 && <line x1={cx - 1.6} y1={deck * 0.62} x2={cx + 1.6} y2={deck * 0.62} {...line} strokeWidth={0.9} />}
+      {holes >= 2 && (
+        <line x1={cx - 5} y1={deck} x2={cx - 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
+      )}
+      {holes === 3 && (
+        <line x1={cx + 5} y1={deck} x2={cx + 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
+      )}
+      {holes >= 2 && <circle cx={cx - 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />}
+      {holes === 3 && <circle cx={cx + 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />}
+    </g>
+  );
+}
