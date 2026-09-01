@@ -141,17 +141,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
         </g>
       );
     case "sink":
-      return (
-        <g>
-          <path d={`M 0 0 L ${w} 0 L ${w} ${h} L 0 ${h} Z`} {...common} fill={f.fill} />
-          <path d={`M 3 2 L ${w - 3} 2 L ${w - 4} ${h - 2} L 4 ${h - 2} Z`} {...common} />
-          <path
-            d={`M ${w / 2} 2 C ${w / 2} -6 ${w / 2 + 8} -6 ${w / 2 + 8} 1`}
-            {...common}
-            strokeWidth={1}
-          />
-        </g>
-      );
+      return sinkArt(comp, f);
+
     case "pendant":
       return (
         <g>
