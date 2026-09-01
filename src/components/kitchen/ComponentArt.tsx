@@ -67,15 +67,8 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
         </g>
       );
     case "refrigerator":
-      return (
-        <g>
-          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} rx={0.6} />
-          <line x1={0} y1={h * 0.36} x2={w} y2={h * 0.36} {...common} />
-          <line x1={w * 0.5} y1={h * 0.36} x2={w * 0.5} y2={h} {...common} />
-          <line x1={w * 0.5 - 2.5} y1={4} x2={w * 0.5 - 2.5} y2={h * 0.3} {...common} strokeWidth={1.2} />
-          <line x1={w * 0.5 + 2.5} y1={h * 0.44} x2={w * 0.5 + 2.5} y2={h * 0.7} {...common} strokeWidth={1.2} />
-        </g>
-      );
+      return fridgeArt(comp, f);
+
     case "range":
       return (
         <g>
