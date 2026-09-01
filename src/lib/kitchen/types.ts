@@ -40,6 +40,10 @@ export type FinishId =
 
 export type DoorStyleId = "slab" | "shaker" | "panel" | "glass";
 export type HardwareId = "none" | "knob" | "pull" | "bar";
+export type HandleSideId = "left" | "right" | "center";
+export type FaucetHoles = 1 | 2 | 3;
+export type FridgeStyleId = "french" | "side-by-side" | "top-freezer" | "bottom-freezer";
+export type FridgeHandlesId = "visible" | "hidden";
 
 /** All measurements are real-world inches. Origin = bottom-left of the wall. */
 export interface KComponent {
@@ -53,6 +57,10 @@ export interface KComponent {
   finish: FinishId;
   doorStyle?: DoorStyleId;
   hardware?: HardwareId;
+  handleSide?: HandleSideId;
+  faucetHoles?: FaucetHoles;
+  fridgeStyle?: FridgeStyleId;
+  fridgeHandles?: FridgeHandlesId;
   groupId?: string | null;
 }
 
@@ -74,6 +82,15 @@ export interface Palette {
   finishes: { role: string; finish: FinishId; note: string }[];
 }
 
+/** Visualize-only configuration. Never affects the grayscale 2D drawing. */
+export interface Visualization {
+  styleId: string;
+  paletteId: string | null;
+  /** for the Custom style: chosen swatch ids from the curated library */
+  customSwatches: string[];
+  windowView: string | null;
+}
+
 export interface Design {
   version: 1;
   id: string;
@@ -83,6 +100,8 @@ export interface Design {
   groups: KGroup[];
   settings: DesignSettings;
   palette?: Palette | null;
+  visualization?: Visualization | null;
   createdAt: string;
   updatedAt: string;
 }
+
