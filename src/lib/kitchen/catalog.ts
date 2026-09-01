@@ -349,6 +349,10 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
   },
 };
 
+/**
+ * The 2D drawing is strictly grayscale. These are tonal values only — never
+ * colours. Material/colour choices live exclusively in the Visualize workflow.
+ */
 export const FINISHES: {
   id: FinishId;
   label: string;
@@ -357,14 +361,14 @@ export const FINISHES: {
   ink: string;
 }[] = [
   { id: "white", label: "White", fill: "#ffffff", line: "#1b1b1a", ink: "#1b1b1a" },
-  { id: "off-white", label: "Off white", fill: "#f4f2ed", line: "#1b1b1a", ink: "#1b1b1a" },
-  { id: "concrete", label: "Concrete", fill: "#d9d7d2", line: "#1b1b1a", ink: "#1b1b1a" },
-  { id: "marble", label: "Marble", fill: "#eceae4", line: "#1b1b1a", ink: "#1b1b1a" },
-  { id: "light-oak", label: "Light oak", fill: "#e3d7c4", line: "#3a322a", ink: "#3a322a" },
-  { id: "walnut", label: "Walnut", fill: "#b49a7f", line: "#2c231b", ink: "#2c231b" },
-  { id: "clay", label: "Clay", fill: "#cdb3a2", line: "#3a2b23", ink: "#3a2b23" },
-  { id: "stainless", label: "Stainless", fill: "#c9cbcc", line: "#1b1b1a", ink: "#1b1b1a" },
-  { id: "graphite", label: "Graphite", fill: "#6f7170", line: "#161616", ink: "#f6f5f2" },
+  { id: "off-white", label: "Paper", fill: "#f7f7f6", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "concrete", label: "Light grey", fill: "#dedede", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "marble", label: "Pale grey", fill: "#ededed", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "light-oak", label: "Grey 15", fill: "#e2e2e2", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "walnut", label: "Grey 30", fill: "#bcbcbc", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "clay", label: "Grey 20", fill: "#cccccc", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "stainless", label: "Grey 25", fill: "#d2d2d2", line: "#1b1b1a", ink: "#1b1b1a" },
+  { id: "graphite", label: "Grey 55", fill: "#7d7d7d", line: "#161616", ink: "#f6f5f2" },
   { id: "black", label: "Black", fill: "#1f1f1e", line: "#111110", ink: "#f6f5f2" },
 ];
 
@@ -381,6 +385,36 @@ export const HARDWARE: { id: HardwareId; label: string }[] = [
   { id: "pull", label: "Pull" },
   { id: "bar", label: "Bar handle" },
 ];
+
+export const FRIDGE_STYLES = [
+  { id: "french", label: "French door" },
+  { id: "side-by-side", label: "Side by side" },
+  { id: "top-freezer", label: "Top freezer" },
+  { id: "bottom-freezer", label: "Bottom freezer" },
+] as const;
+
+export const FRIDGE_HANDLES = [
+  { id: "visible", label: "Visible handles" },
+  { id: "hidden", label: "Hidden handles" },
+] as const;
+
+export const HANDLE_SIDES = [
+  { id: "left", label: "Left" },
+  { id: "right", label: "Right" },
+  { id: "center", label: "Center" },
+] as const;
+
+/** Cabinet types drawn with hinged doors (handle orientation applies). */
+export const DOOR_CABINETS: ComponentType[] = ["base-cabinet", "upper-cabinet", "tall-cabinet"];
+
+export function isDoorCabinet(type: ComponentType) {
+  return DOOR_CABINETS.includes(type);
+}
+
+/** A door cabinet wider than 24 in is drawn as a pair of doors. */
+export function doorLeaves(comp: { type: ComponentType; w: number }) {
+  return isDoorCabinet(comp.type) && comp.w > 24 ? 2 : 1;
+}
 
 export function finishOf(id: FinishId) {
   return FINISHES.find((f) => f.id === id) ?? FINISHES[0];
@@ -408,7 +442,13 @@ export function createComponent(
     finish: entry.finish,
     doorStyle: entry.doorStyle,
     hardware: entry.hardware,
+    ...(isDoorCabinet(type) ? { handleSide: "center" as const } : {}),
+    ...(type === "sink" ? { faucetHoles: 1 as const } : {}),
+    ...(type === "refrigerator"
+      ? { fridgeStyle: "french" as const, fridgeHandles: "visible" as const }
+      : {}),
     groupId: null,
     ...overrides,
   };
 }
+
