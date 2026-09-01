@@ -202,13 +202,21 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
 function doorFronts(comp: KComponent, f: ReturnType<typeof finishOf>) {
   const { w, h } = comp;
   const common = { stroke: f.line, strokeWidth: 0.5, fill: "none", vectorEffect: "non-scaling-stroke" as const };
-  const leaves = w > 26 ? 2 : 1;
+  const leaves = doorLeaves(comp);
   const lw = w / leaves;
+  const side = comp.handleSide ?? "center";
   return (
     <g>
       {Array.from({ length: leaves }).map((_, i) => {
         const x = i * lw;
-        const cx = x + lw - 3;
+        // Single door: handle sits on the chosen side of the door.
+        // Double doors: "center" puts a handle at each inner (meeting) edge.
+        const inset = 3;
+        let hx: number;
+        if (leaves === 1) hx = side === "left" ? x + inset : x + lw - inset;
+        else if (side === "center") hx = i === 0 ? x + lw - inset : x + inset;
+        else if (side === "left") hx = x + inset;
+        else hx = x + lw - inset;
         return (
           <g key={i}>
             {leaves === 2 && i === 1 && <line x1={x} y1={0} x2={x} y2={h} {...common} />}
@@ -228,13 +236,14 @@ function doorFronts(comp: KComponent, f: ReturnType<typeof finishOf>) {
                 <line x1={x + lw / 2} y1={2.5} x2={x + lw / 2} y2={h - 2.5} {...common} />
               </>
             )}
-            {hardwareMark(comp, f, i === 0 && leaves === 2 ? x + lw - 3 : cx, h * 0.5, "v")}
+            {hardwareMark(comp, f, hx, h * 0.5, "v")}
           </g>
         );
       })}
     </g>
   );
 }
+
 
 function hardwareMark(
   comp: KComponent,
