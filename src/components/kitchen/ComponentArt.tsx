@@ -1,5 +1,6 @@
-import { finishOf } from "@/lib/kitchen/catalog";
+import { doorLeaves, finishOf } from "@/lib/kitchen/catalog";
 import type { KComponent } from "@/lib/kitchen/types";
+
 
 /**
  * Architectural line-art for one component, drawn in local inches with a
