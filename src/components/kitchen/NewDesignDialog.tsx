@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TEMPLATES, createDesign } from "@/lib/kitchen/templates";
+import { TEMPLATES, createDesign, randomKitchenName } from "@/lib/kitchen/templates";
 import { toFeetInches } from "@/lib/kitchen/format";
 import { MiniButton, Section } from "./PropertiesPanel";
 import type { Design } from "@/lib/kitchen/types";
@@ -32,8 +32,7 @@ export function NewDesignDialog({
   const [template, setTemplate] = useState("standard");
   const [height, setHeight] = useState(96);
   const [width, setWidth] = useState(120);
-  const [custom, setCustom] = useState(false);
-  const [name, setName] = useState("Untitled kitchen");
+  const [name, setName] = useState(() => randomKitchenName());
 
   if (!open) return null;
 
@@ -79,7 +78,7 @@ export function NewDesignDialog({
           <Section label="Wall height">
             <div className="flex flex-wrap gap-1">
               {HEIGHTS.map((h) => (
-                <MiniButton key={h.value} active={height === h.value && !custom} onClick={() => { setHeight(h.value); setCustom(false); }}>
+                <MiniButton key={h.value} active={height === h.value} onClick={() => setHeight(h.value)}>
                   {h.label}
                 </MiniButton>
               ))}
@@ -89,16 +88,12 @@ export function NewDesignDialog({
           <Section label="Wall width">
             <div className="flex flex-wrap gap-1">
               {WIDTHS.map((w) => (
-                <MiniButton key={w.value} active={width === w.value && !custom} onClick={() => { setWidth(w.value); setCustom(false); }}>
+                <MiniButton key={w.value} active={width === w.value} onClick={() => setWidth(w.value)}>
                   {w.label} — {w.note}
                 </MiniButton>
               ))}
-              <MiniButton active={custom} onClick={() => setCustom(true)}>
-                Custom
-              </MiniButton>
             </div>
-            {custom && (
-              <div className="mt-3 grid grid-cols-2 gap-3">
+            <div className="mt-3 grid grid-cols-2 gap-3">
                 <label className="block">
                   <span className="mb-1 block text-[10px] text-ink-soft">Width (in)</span>
                   <input
@@ -121,8 +116,7 @@ export function NewDesignDialog({
                     className="w-full border border-line bg-paper px-2 py-1.5 text-[12px] tabular-nums text-ink outline-none focus:border-ink"
                   />
                 </label>
-              </div>
-            )}
+            </div>
             <p className="mt-2 text-[10px] text-ink-soft">
               {toFeetInches(width)} × {toFeetInches(height)}
             </p>
@@ -154,7 +148,7 @@ export function NewDesignDialog({
                 width: Math.min(480, Math.max(48, width)),
                 height: Math.min(180, Math.max(72, height)),
               };
-              onCreate(createDesign(name.trim() || "Untitled kitchen", clamped, template));
+              onCreate(createDesign(name.trim() || randomKitchenName(), clamped, template));
             }}
             className="border border-ink bg-ink px-5 py-2 text-[12px] text-paper transition-opacity hover:opacity-85"
           >

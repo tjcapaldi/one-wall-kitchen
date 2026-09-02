@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { KitchenProvider, useKitchen } from "@/lib/kitchen/store";
-import { createDesign } from "@/lib/kitchen/templates";
+import { createDesign, randomKitchenName } from "@/lib/kitchen/templates";
 import { loadAppearance, loadDesign, saveAppearance, savedDesignMeta } from "@/lib/kitchen/storage";
 import { CanvasStage } from "@/components/kitchen/CanvasStage";
 import { ComponentLibrary } from "@/components/kitchen/ComponentLibrary";
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [initial] = useState<Design>(() => createDesign("Untitled kitchen", { width: 120, height: 96 }, "standard"));
+  const [initial] = useState<Design>(() => createDesign(randomKitchenName(), { width: 120, height: 96 }, "standard"));
   return (
     <KitchenProvider initial={initial}>
       <Editor />
@@ -55,7 +55,6 @@ function Editor() {
     setSavedMeta(savedDesignMeta());
     const bg = loadAppearance();
     if (bg) setBackground(bg);
-    setNewOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
