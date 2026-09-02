@@ -81,3 +81,70 @@ export const STYLE_DIRECTIONS: StyleDirection[] = [
 export function styleById(id: string) {
   return STYLE_DIRECTIONS.find((s) => s.id === id) ?? STYLE_DIRECTIONS[0];
 }
+
+/** Palette variants per style: the base palette plus a cooler and a deeper reading. */
+const COOL: Partial<Record<FinishId, FinishId>> = {
+  "off-white": "white",
+  white: "off-white",
+  "light-oak": "marble",
+  walnut: "concrete",
+  clay: "concrete",
+  marble: "concrete",
+  concrete: "marble",
+  stainless: "concrete",
+  graphite: "stainless",
+  black: "graphite",
+};
+
+const DEEP: Partial<Record<FinishId, FinishId>> = {
+  "off-white": "concrete",
+  white: "concrete",
+  marble: "clay",
+  "light-oak": "walnut",
+  clay: "walnut",
+  concrete: "graphite",
+  stainless: "graphite",
+  walnut: "graphite",
+  graphite: "black",
+  black: "black",
+};
+
+function variant(base: Palette, name: string, description: string, map: Partial<Record<FinishId, FinishId>>): Palette {
+  return {
+    name,
+    description,
+    finishes: base.finishes.map((f) => ({ ...f, finish: map[f.finish] ?? f.finish })),
+  };
+}
+
+export function palettesFor(style: StyleDirection): Palette[] {
+  return [
+    style.palette,
+    variant(style.palette, `${style.name} · Cool`, "Cooler, flatter tones — more daylight, less warmth.", COOL),
+    variant(style.palette, `${style.name} · Deep`, "Darker register — heavier base, more contrast.", DEEP),
+  ];
+}
+
+export const CUSTOM_STYLE_ID = "custom";
+
+export const CUSTOM_ROLES = [
+  "Base cabinets",
+  "Upper cabinets",
+  "Countertop",
+  "Shelving",
+  "Appliances",
+] as const;
+
+export function customStyle(finishes: Record<string, FinishId>): StyleDirection {
+  return {
+    id: CUSTOM_STYLE_ID,
+    name: "Custom",
+    summary: "Your own combination — pick a tone for each role and apply it to the drawing.",
+    materials: ["Chosen by you", "Anything the roles below imply"],
+    palette: p("Custom palette", "Hand-picked tones per role.", CUSTOM_ROLES.map((role) => ({
+      role,
+      finish: finishes[role] ?? "off-white",
+      note: "Your choice",
+    }))),
+  };
+}

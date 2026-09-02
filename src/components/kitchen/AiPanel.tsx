@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { STYLE_DIRECTIONS } from "@/lib/kitchen/ai";
-import { CATALOG } from "@/lib/kitchen/catalog";
+import {
+  CUSTOM_ROLES,
+  CUSTOM_STYLE_ID,
+  STYLE_DIRECTIONS,
+  customStyle,
+  palettesFor,
+} from "@/lib/kitchen/ai";
+import { CATALOG, FINISHES } from "@/lib/kitchen/catalog";
 import { useKitchen } from "@/lib/kitchen/store";
 import type { FinishId, Palette } from "@/lib/kitchen/types";
 import { MiniButton, Section } from "./PropertiesPanel";
 import { ConceptualView } from "./ConceptualView";
+
 
 function applyPaletteUpdates(
   palette: Palette,
