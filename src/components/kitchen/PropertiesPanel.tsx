@@ -1,7 +1,27 @@
-import { CATALOG, DOOR_STYLES, FINISHES, HARDWARE, finishOf } from "@/lib/kitchen/catalog";
+import { useEffect, useState } from "react";
+import {
+  CATALOG,
+  DOOR_STYLES,
+  FINISHES,
+  FRIDGE_HANDLES,
+  FRIDGE_STYLES,
+  HANDLE_SIDES,
+  HARDWARE,
+  finishOf,
+  isDoorCabinet,
+  doorLeaves,
+} from "@/lib/kitchen/catalog";
 import { useKitchen } from "@/lib/kitchen/store";
 import { inchLabel, inchWithFeet, toFeetInches } from "@/lib/kitchen/format";
-import type { DoorStyleId, FinishId, HardwareId } from "@/lib/kitchen/types";
+import type {
+  DoorStyleId,
+  FaucetHoles,
+  FinishId,
+  FridgeHandlesId,
+  FridgeStyleId,
+  HandleSideId,
+  HardwareId,
+} from "@/lib/kitchen/types";
 
 export function PropertiesPanel() {
   const { selected, design, updateComponents, align, distribute, group, ungroup, duplicateSelected, removeSelected } =
@@ -155,6 +175,77 @@ export function PropertiesPanel() {
           </Section>
         )}
 
+        {isDoorCabinet(comp.type) && (
+          <Section label={doorLeaves(comp) === 2 ? "Handles (double doors)" : "Handle side"}>
+            <div className="grid grid-cols-3 gap-1">
+              {HANDLE_SIDES.map((h) => (
+                <MiniButton
+                  key={h.id}
+                  active={(comp.handleSide ?? "center") === h.id}
+                  onClick={() => patch({ handleSide: h.id as HandleSideId })}
+                >
+                  {h.label}
+                </MiniButton>
+              ))}
+            </div>
+            <p className="mt-2 text-[10px] text-ink-soft">
+              {doorLeaves(comp) === 2
+                ? "Two leaves — “Center” places pulls on the meeting edges."
+                : "A single door — pick the side the hand goes."}
+            </p>
+          </Section>
+        )}
+
+        {comp.type === "sink" && (
+          <Section label="Faucet holes">
+            <div className="grid grid-cols-3 gap-1">
+              {([1, 2, 3] as FaucetHoles[]).map((n) => (
+                <MiniButton
+                  key={n}
+                  active={(comp.faucetHoles ?? 1) === n}
+                  onClick={() => patch({ faucetHoles: n })}
+                >
+                  {n} hole{n > 1 ? "s" : ""}
+                </MiniButton>
+              ))}
+            </div>
+            <p className="mt-2 text-[10px] text-ink-soft">
+              The basin sits below the counter line, so only the deck fittings are drawn.
+            </p>
+          </Section>
+        )}
+
+        {comp.type === "refrigerator" && (
+          <>
+            <Section label="Fridge style">
+              <div className="grid grid-cols-2 gap-1">
+                {FRIDGE_STYLES.map((f) => (
+                  <MiniButton
+                    key={f.id}
+                    active={(comp.fridgeStyle ?? "french") === f.id}
+                    onClick={() => patch({ fridgeStyle: f.id as FridgeStyleId })}
+                  >
+                    {f.label}
+                  </MiniButton>
+                ))}
+              </div>
+            </Section>
+            <Section label="Handles">
+              <div className="grid grid-cols-2 gap-1">
+                {FRIDGE_HANDLES.map((f) => (
+                  <MiniButton
+                    key={f.id}
+                    active={(comp.fridgeHandles ?? "visible") === f.id}
+                    onClick={() => patch({ fridgeHandles: f.id as FridgeHandlesId })}
+                  >
+                    {f.label}
+                  </MiniButton>
+                ))}
+              </div>
+            </Section>
+          </>
+        )}
+
         <Section label="Component">
           <div className="grid grid-cols-2 gap-1">
             <MiniButton onClick={duplicateSelected}>Duplicate</MiniButton>
@@ -225,20 +316,49 @@ function NumberField({
   disabled?: boolean;
   onChange: (v: number) => void;
 }) {
+  const [draft, setDraft] = useState(String(Math.round(value * 100) / 100));
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!editing) setDraft(String(Math.round(value * 100) / 100));
+  }, [value, editing]);
+
+  const commit = () => {
+    setEditing(false);
+    const v = Number(draft);
+    if (!Number.isFinite(v) || draft.trim() === "") {
+      setDraft(String(Math.round(value * 100) / 100));
+      return;
+    }
+    const clamped = Math.min(max, Math.max(min, v));
+    setDraft(String(clamped));
+    if (clamped !== value) onChange(clamped);
+  };
+
   return (
     <label className="block">
       <span className="mb-1 block text-[10px] text-ink-soft">{label}</span>
       <span className="flex items-center border border-line bg-paper focus-within:border-ink">
         <input
           type="number"
-          value={Math.round(value * 100) / 100}
+          value={draft}
           min={min}
           max={max}
           step={0.25}
           disabled={disabled}
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            if (Number.isFinite(v)) onChange(v);
+          onFocus={() => setEditing(true)}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.currentTarget.blur();
+            }
+            if (e.key === "Escape") {
+              setDraft(String(Math.round(value * 100) / 100));
+              setEditing(false);
+              e.currentTarget.blur();
+            }
           }}
           className="w-full bg-transparent px-2 py-1.5 text-[12px] tabular-nums text-ink outline-none disabled:opacity-40"
         />

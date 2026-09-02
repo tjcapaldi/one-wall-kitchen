@@ -82,9 +82,8 @@ export function TopBar({
 
       <nav className="flex items-center gap-1 text-[12px]">
         <BarButton onClick={onNewDesign}>New</BarButton>
-        <BarButton onClick={() => onOpenInsights("materials")}>Materials</BarButton>
-        <BarButton onClick={() => onOpenInsights("costs")}>Costs</BarButton>
-        <BarButton onClick={onOpenAi}>Assistant</BarButton>
+        <BarButton onClick={onOpenAi}>Visualize</BarButton>
+        <BarButton onClick={() => onOpenInsights("materials")}>Plan</BarButton>
         <span className="mx-1 h-4 w-px bg-line" />
         <BarButton onClick={save}>Save</BarButton>
         <BarButton onClick={() => fileRef.current?.click()}>Import</BarButton>

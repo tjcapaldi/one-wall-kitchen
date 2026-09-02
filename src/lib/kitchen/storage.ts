@@ -65,6 +65,10 @@ export function validateDesign(input: unknown): Design {
       finish: c.finish ?? CATALOG[c.type].finish,
       doorStyle: c.doorStyle ?? CATALOG[c.type].doorStyle,
       hardware: c.hardware ?? CATALOG[c.type].hardware,
+      handleSide: c.handleSide,
+      faucetHoles: c.faucetHoles,
+      fridgeStyle: c.fridgeStyle,
+      fridgeHandles: c.fridgeHandles,
       groupId: c.groupId ?? null,
     }));
 
@@ -91,6 +95,7 @@ export function validateDesign(input: unknown): Design {
       background: d.settings?.background ?? "gray",
     },
     palette: d.palette ?? null,
+    visualization: d.visualization ?? null,
     createdAt: typeof d.createdAt === "string" ? d.createdAt : now,
     updatedAt: now,
   };

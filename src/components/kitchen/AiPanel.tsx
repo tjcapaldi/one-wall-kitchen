@@ -54,8 +54,10 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
     <aside className="absolute right-0 top-0 z-40 flex h-full w-[380px] flex-col border-l border-line bg-shell shadow-drawing">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <div>
-          <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">Design assistant</h2>
-          <p className="mt-1 text-[10px] text-ink-soft">Suggestions, not decisions.</p>
+          <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">Visualize</h2>
+          <p className="mt-1 text-[10px] text-ink-soft">
+            Step 1 style · Step 2 palette · Step 3 view
+          </p>
         </div>
         <button onClick={onClose} className="text-xs text-ink-soft hover:text-ink">
           Close
@@ -63,7 +65,7 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
       </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-        <Section label="Style direction">
+        <Section label="1 · Style direction">
           <div className="flex flex-wrap gap-1">
             {STYLE_DIRECTIONS.map((s) => (
               <MiniButton key={s.id} active={s.id === styleId} onClick={() => setStyleId(s.id)}>
@@ -74,7 +76,7 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
           <p className="mt-3 text-[11px] leading-relaxed text-ink">{style.summary}</p>
         </Section>
 
-        <Section label="Suggested palette">
+        <Section label="2 · Palette">
           <ul className="divide-y divide-line border border-line bg-paper">
             {style.palette.finishes.map((f) => (
               <li key={f.role} className="flex items-center gap-3 px-3 py-2">
@@ -109,7 +111,7 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
           </div>
         </Section>
 
-        <Section label="Suggested materials">
+        <Section label="Materials this style implies">
           <ul className="space-y-1.5">
             {style.materials.map((m) => (
               <li key={m} className="text-[11px] leading-relaxed text-ink-soft">
@@ -119,7 +121,7 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
           </ul>
         </Section>
 
-        <Section label="Conceptual 3D view">
+        <Section label="3 · Conceptual 3D view">
           <MiniButton onClick={generate}>
             {view === "loading" ? "Building view…" : "Create 3D view"}
           </MiniButton>
