@@ -65,6 +65,10 @@ export function validateDesign(input: unknown): Design {
       finish: c.finish ?? CATALOG[c.type].finish,
       doorStyle: c.doorStyle ?? CATALOG[c.type].doorStyle,
       hardware: c.hardware ?? CATALOG[c.type].hardware,
+      handleSide: c.handleSide,
+      faucetHoles: c.faucetHoles,
+      fridgeStyle: c.fridgeStyle,
+      fridgeHandles: c.fridgeHandles,
       groupId: c.groupId ?? null,
     }));
 
