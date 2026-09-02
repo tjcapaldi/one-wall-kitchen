@@ -95,6 +95,7 @@ export function validateDesign(input: unknown): Design {
       background: d.settings?.background ?? "gray",
     },
     palette: d.palette ?? null,
+    visualization: d.visualization ?? null,
     createdAt: typeof d.createdAt === "string" ? d.createdAt : now,
     updatedAt: now,
   };
