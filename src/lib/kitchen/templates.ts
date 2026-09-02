@@ -169,3 +169,16 @@ export function createDesign(
     updatedAt: now,
   };
 }
+
+const CHEFS = [
+  "Escoffier", "Julia", "Carême", "Bourdain", "Hazan", "Point", "Beard", "Child",
+  "Bocuse", "Waters", "Keller", "Adrià", "Redzepi", "David", "Lawson", "Ottolenghi",
+];
+const ROOMS = ["kitchen", "wall", "galley", "line", "workroom", "scullery"];
+
+/** A light-hearted default name so every design starts with character. */
+export function randomKitchenName() {
+  const chef = CHEFS[Math.floor(Math.random() * CHEFS.length)];
+  const room = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+  return `${chef}'s ${room}`;
+}
