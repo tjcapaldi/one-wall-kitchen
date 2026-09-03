@@ -13,10 +13,18 @@ export function ComponentLibrary() {
   const toggle = (id: CategoryId) =>
     setOpen((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]));
 
+  const allOpen = open.length === CATEGORIES.length;
+
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-3 pt-5">
+      <div className="flex items-center justify-between px-5 pb-3 pt-5">
         <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">Components</h2>
+        <button
+          onClick={() => setOpen(allOpen ? [] : CATEGORIES.map((c) => c.id))}
+          className="border border-transparent px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-ink-soft transition-colors hover:border-line hover:text-ink"
+        >
+          {allOpen ? "Collapse all" : "Expand all"}
+        </button>
       </div>
       <div className="flex-1 overflow-y-auto px-2 pb-8">
         {CATEGORIES.map((cat) => {
