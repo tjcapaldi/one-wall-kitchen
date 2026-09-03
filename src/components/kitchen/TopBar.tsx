@@ -147,6 +147,35 @@ export function TopBar({
   );
 }
 
+function Gear() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.4}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6" />
+    </svg>
+  );
+}
+
+function MenuItem({
+  title,
+  note,
+  onClick,
+}: {
+  title: string;
+  note: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="block w-full px-3 py-2 text-left transition-colors hover:bg-shell"
+    >
+      <span className="block text-[12px] text-ink">{title}</span>
+      <span className="block text-[10px] text-ink-soft">{note}</span>
+    </button>
+  );
+}
+
 function BarButton({
   children,
   onClick,
