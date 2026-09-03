@@ -80,37 +80,56 @@ export function TopBar({
         </span>
       </div>
 
-      <nav className="flex items-center gap-1 text-[12px]">
+      <nav className="ml-auto flex items-center gap-1 text-[12px]">
         <BarButton onClick={onNewDesign}>New</BarButton>
         <BarButton onClick={onOpenAi}>Visualize</BarButton>
         <BarButton onClick={() => onOpenInsights("materials")}>Plan</BarButton>
         <span className="mx-1 h-4 w-px bg-line" />
-        <BarButton onClick={save}>Save</BarButton>
-        <BarButton onClick={() => fileRef.current?.click()}>Import</BarButton>
+        <BarButton onClick={onOpenAppearance}>Appearance</BarButton>
         <div className="relative">
-          <BarButton onClick={() => setExportOpen((v) => !v)} active={exportOpen}>
-            {exporting ? `Exporting ${exporting.toUpperCase()}…` : "Export"}
-          </BarButton>
+          <button
+            onClick={() => setExportOpen((v) => !v)}
+            data-active={exportOpen ? "" : undefined}
+            aria-label="File options"
+            title="File options"
+            className="flex h-[30px] w-[30px] items-center justify-center border border-transparent text-ink transition-colors hover:border-line hover:bg-paper data-[active]:border-line data-[active]:bg-paper"
+          >
+            <Gear />
+          </button>
           {exportOpen && (
-            <div className="absolute right-0 z-30 mt-1 w-56 border border-line bg-paper py-1 shadow-panel">
+            <div className="absolute right-0 z-30 mt-1 w-60 border border-line bg-paper py-1 shadow-panel">
+              <MenuItem
+                title={dirty ? "Save now" : "Save now (up to date)"}
+                note="Store this design in this browser"
+                onClick={() => {
+                  setExportOpen(false);
+                  save();
+                }}
+              />
+              <MenuItem
+                title="Import JSON…"
+                note="Open an existing design file"
+                onClick={() => {
+                  setExportOpen(false);
+                  fileRef.current?.click();
+                }}
+              />
+              <div className="my-1 h-px bg-line" />
               {[
-                { id: "png", title: "PNG", note: "Showcase image" },
-                { id: "pdf", title: "PDF", note: "Printable design sheet" },
-                { id: "json", title: "JSON", note: "Editable design file" },
+                { id: "png", title: "Export PNG", note: "Showcase image" },
+                { id: "pdf", title: "Export PDF", note: "Printable design sheet" },
+                { id: "json", title: "Export JSON", note: "Editable design file" },
               ].map((o) => (
-                <button
+                <MenuItem
                   key={o.id}
+                  title={exporting === o.id ? `Exporting ${o.id.toUpperCase()}…` : o.title}
+                  note={o.note}
                   onClick={() => handleExport(o.id as "png")}
-                  className="block w-full px-3 py-2 text-left transition-colors hover:bg-shell"
-                >
-                  <span className="block text-[12px] text-ink">{o.title}</span>
-                  <span className="block text-[10px] text-ink-soft">{o.note}</span>
-                </button>
+                />
               ))}
             </div>
           )}
         </div>
-        <BarButton onClick={onOpenAppearance}>Appearance</BarButton>
       </nav>
 
       <input
