@@ -249,9 +249,13 @@ export function CanvasStage() {
   const isEmpty = design.components.length === 0;
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-auto p-8">
+    <div ref={viewportRef} className="relative h-full w-full overflow-hidden">
       <div
-        className="relative w-full max-w-[1180px]"
+        className="absolute inset-0 flex items-center justify-center p-8"
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -259,6 +263,7 @@ export function CanvasStage() {
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
       >
+      <div className="relative w-full max-w-[1180px]">
         <svg
           ref={svgRef}
           id="owk-canvas"
