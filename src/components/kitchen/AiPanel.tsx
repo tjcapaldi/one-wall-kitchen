@@ -100,46 +100,81 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
         <Section label="1 · Style direction">
           <div className="flex flex-wrap gap-1">
             {STYLE_DIRECTIONS.map((s) => (
-              <MiniButton key={s.id} active={s.id === styleId} onClick={() => setStyleId(s.id)}>
+              <MiniButton
+                key={s.id}
+                active={s.id === styleId}
+                onClick={() => {
+                  setStyleId(s.id);
+                  setPaletteIdx(0);
+                }}
+              >
                 {s.name}
               </MiniButton>
             ))}
+            <MiniButton
+              active={isCustom}
+              onClick={() => {
+                setStyleId(CUSTOM_STYLE_ID);
+                setPaletteIdx(0);
+              }}
+            >
+              Custom
+            </MiniButton>
           </div>
           <p className="mt-3 text-[11px] leading-relaxed text-ink">{style.summary}</p>
         </Section>
 
         <Section label="2 · Palette">
-          <ul className="divide-y divide-line border border-line bg-paper">
-            {style.palette.finishes.map((f) => (
-              <li key={f.role} className="flex items-center gap-3 px-3 py-2">
-                <span
-                  className="h-5 w-5 shrink-0 border border-line"
-                  style={{ backgroundColor: `var(--swatch)` }}
-                  ref={(el) => {
-                    if (el) el.style.backgroundColor = swatch(f.finish);
-                  }}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[11px] text-ink">{f.role}</span>
-                  <span className="block text-[10px] text-ink-soft">{f.note}</span>
-                </span>
+          {!isCustom && (
+            <>
+              <div className="flex flex-wrap gap-1">
+                {palettes.map((p, i) => (
+                  <MiniButton key={p.name} active={i === paletteIdx} onClick={() => setPaletteIdx(i)}>
+                    {i === 0 ? "Signature" : p.name.split("·").pop()?.trim()}
+                  </MiniButton>
+                ))}
+              </div>
+              <p className="mt-2 text-[10px] leading-relaxed text-ink-soft">{palette.description}</p>
+            </>
+          )}
+
+          <ul className="mt-2 divide-y divide-line border border-line bg-paper">
+            {palette.finishes.map((f) => (
+              <li key={f.role} className="px-3 py-2">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="h-5 w-5 shrink-0 border border-line"
+                    ref={(el) => {
+                      if (el) el.style.backgroundColor = swatch(f.finish);
+                    }}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[11px] text-ink">{f.role}</span>
+                    <span className="block text-[10px] text-ink-soft">{f.note}</span>
+                  </span>
+                </div>
+                {isCustom && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {FINISHES.map((fin) => (
+                      <button
+                        key={fin.id}
+                        onClick={() => setCustom((c) => ({ ...c, [f.role]: fin.id }))}
+                        title={fin.label}
+                        aria-label={`${f.role}: ${fin.label}`}
+                        data-active={custom[f.role] === fin.id ? "" : undefined}
+                        className="h-4 w-4 border border-line data-[active]:outline data-[active]:outline-1 data-[active]:outline-offset-1 data-[active]:outline-ink"
+                        ref={(el) => {
+                          if (el) el.style.backgroundColor = swatch(fin.id);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
           <div className="mt-2 grid grid-cols-1 gap-1">
-            <MiniButton
-              onClick={() => {
-                const updates = applyPaletteUpdates(style.palette, design.components);
-                if (!updates.length) {
-                  toast.info("This palette is already applied.");
-                  return;
-                }
-                updateComponents(updates);
-                toast.success(`${style.palette.name} applied to ${updates.length} components`);
-              }}
-            >
-              Apply this palette
-            </MiniButton>
+            <MiniButton onClick={apply}>Apply this palette</MiniButton>
           </div>
         </Section>
 
