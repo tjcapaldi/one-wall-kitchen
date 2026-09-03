@@ -33,10 +33,52 @@ export function CanvasStage() {
     duplicateSelected,
   } = useKitchen();
   const svgRef = useRef<SVGSVGElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const drag = useRef<DragState | null>(null);
   const [guides, setGuides] = useState<{ v: number[]; h: number[] }>({ v: [], h: [] });
   const [marquee, setMarquee] = useState<DragState["marquee"] | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  const zoomAt = useCallback((factor: number, px: number, py: number) => {
+    setZoom((z) => {
+      const next = Math.min(4, Math.max(0.35, z * factor));
+      const k = next / z;
+      setOffset((o) => ({ x: px - (px - o.x) * k, y: py - (py - o.y) * k }));
+      return next;
+    });
+  }, []);
+
+  const zoomBy = useCallback(
+    (factor: number) => {
+      const r = viewportRef.current?.getBoundingClientRect();
+      zoomAt(factor, (r?.width ?? 0) / 2, (r?.height ?? 0) / 2);
+    },
+    [zoomAt],
+  );
+
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setOffset({ x: 0, y: 0 });
+  }, []);
+
+  const wheelRef = useRef(zoomAt);
+  wheelRef.current = zoomAt;
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      wheelRef.current(Math.exp(-dy * 0.0015), e.clientX - r.left, e.clientY - r.top);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
 
   const { width: wallW, height: wallH } = design.wall;
   const viewBox = `${-MARGIN} ${-MARGIN} ${wallW + MARGIN * 2} ${wallH + MARGIN * 2}`;
@@ -249,9 +291,13 @@ export function CanvasStage() {
   const isEmpty = design.components.length === 0;
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-auto p-8">
+    <div ref={viewportRef} className="relative h-full w-full overflow-hidden">
       <div
-        className="relative w-full max-w-[1180px]"
+        className="absolute inset-0 flex items-center justify-center p-8"
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
+        }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -259,6 +305,7 @@ export function CanvasStage() {
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
       >
+      <div className="relative w-full max-w-[1180px]">
         <svg
           ref={svgRef}
           id="owk-canvas"
@@ -449,6 +496,34 @@ export function CanvasStage() {
         {dragOver && (
           <div className="pointer-events-none absolute inset-0 rounded-[2px] border border-dashed border-ink/40" />
         )}
+      </div>
+      </div>
+
+      <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
+        <button
+          onClick={() => zoomBy(1 / 1.2)}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+        <span className="w-12 text-center tabular-nums text-ink-soft">
+          {Math.round(zoom * 100)}%
+        </span>
+        <button
+          onClick={() => zoomBy(1.2)}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        <span className="mx-0.5 h-4 w-px bg-line" />
+        <button
+          onClick={resetView}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+        >
+          Fit
+        </button>
       </div>
     </div>
   );
