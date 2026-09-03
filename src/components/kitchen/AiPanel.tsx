@@ -42,9 +42,23 @@ function applyPaletteUpdates(
 
 export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { design, updateComponents } = useKitchen();
-  const [styleId, setStyleId] = useState(STYLE_DIRECTIONS[0].id);
+  const [styleId, setStyleId] = useState<string>(STYLE_DIRECTIONS[0].id);
+  const [paletteIdx, setPaletteIdx] = useState(0);
+  const [custom, setCustom] = useState<Record<string, FinishId>>(() =>
+    Object.fromEntries(CUSTOM_ROLES.map((r) => [r, "off-white" as FinishId])),
+  );
   const [view, setView] = useState<"idle" | "loading" | "ready">("idle");
-  const style = STYLE_DIRECTIONS.find((s) => s.id === styleId)!;
+
+  const isCustom = styleId === CUSTOM_STYLE_ID;
+  const style = useMemo(
+    () => (isCustom ? customStyle(custom) : STYLE_DIRECTIONS.find((s) => s.id === styleId)!),
+    [isCustom, custom, styleId],
+  );
+  const palettes = useMemo(
+    () => (isCustom ? [style.palette] : palettesFor(style)),
+    [isCustom, style],
+  );
+  const palette = palettes[Math.min(paletteIdx, palettes.length - 1)];
 
   if (!open) return null;
 
@@ -56,6 +70,17 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
     setView("loading");
     setTimeout(() => setView("ready"), 700);
   };
+
+  const apply = () => {
+    const updates = applyPaletteUpdates(palette, design.components);
+    if (!updates.length) {
+      toast.info("This palette is already applied.");
+      return;
+    }
+    updateComponents(updates);
+    toast.success(`${palette.name} applied to ${updates.length} components`);
+  };
+
 
   return (
     <aside className="absolute right-0 top-0 z-40 flex h-full w-[380px] flex-col border-l border-line bg-shell shadow-drawing">
