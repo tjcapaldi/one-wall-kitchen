@@ -455,6 +455,34 @@ export function CanvasStage() {
           <div className="pointer-events-none absolute inset-0 rounded-[2px] border border-dashed border-ink/40" />
         )}
       </div>
+      </div>
+
+      <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
+        <button
+          onClick={() => zoomBy(1 / 1.2)}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+        <span className="w-12 text-center tabular-nums text-ink-soft">
+          {Math.round(zoom * 100)}%
+        </span>
+        <button
+          onClick={() => zoomBy(1.2)}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+        <span className="mx-0.5 h-4 w-px bg-line" />
+        <button
+          onClick={resetView}
+          className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
+        >
+          Fit
+        </button>
+      </div>
     </div>
   );
 }
