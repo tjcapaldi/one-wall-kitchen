@@ -1,9 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useKitchen } from "@/lib/kitchen/store";
-import { saveDesign, validateDesign } from "@/lib/kitchen/storage";
+import { saveDesign, savedDesignMeta, validateDesign } from "@/lib/kitchen/storage";
 import { exportJson, exportPdf, exportPng } from "@/lib/kitchen/exporters";
-import { toFeetInches } from "@/lib/kitchen/format";
 
 export function TopBar({
   onNewDesign,
@@ -20,10 +19,17 @@ export function TopBar({
   const fileRef = useRef<HTMLInputElement>(null);
   const [exporting, setExporting] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [designOpen, setDesignOpen] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSavedAt(savedDesignMeta()?.updatedAt ?? null);
+  }, []);
 
   const save = () => {
     saveDesign(design);
     markSaved();
+    setSavedAt(new Date().toISOString());
     toast.success("Design saved to this browser");
   };
 
@@ -72,20 +78,40 @@ export function TopBar({
           value={design.name}
           onChange={(e) => rename(e.target.value)}
           aria-label="Design name"
-          className="min-w-0 max-w-[280px] flex-1 border-b border-transparent bg-transparent py-1 text-[13px] text-ink outline-none transition-colors hover:border-line focus:border-ink"
+          className="min-w-0 max-w-[240px] flex-1 border-b border-transparent bg-transparent py-1 text-[13px] text-ink outline-none transition-colors hover:border-line focus:border-ink"
         />
         <span className="whitespace-nowrap text-[11px] text-ink-soft">
-          {toFeetInches(design.wall.width)} × {toFeetInches(design.wall.height)}
-          {dirty ? " · unsaved" : " · saved"}
+          {savedAt ? `Last saved on ${formatSaved(savedAt)}` : "Not yet saved"}
         </span>
+        <button
+          onClick={save}
+          className="whitespace-nowrap text-[11px] text-ink underline decoration-line underline-offset-4 transition-colors hover:decoration-ink"
+        >
+          {dirty || !savedAt ? "Save now" : "Save now (up to date)"}
+        </button>
       </div>
 
       <nav className="ml-auto flex items-center gap-1 text-[12px]">
-        <BarButton onClick={onNewDesign}>New</BarButton>
+        <div className="relative">
+          <BarButton onClick={() => setDesignOpen((v) => !v)} active={designOpen}>
+            Design
+          </BarButton>
+          {designOpen && (
+            <div className="absolute right-0 z-30 mt-1 w-56 border border-line bg-paper py-1 shadow-panel">
+              <MenuItem
+                title="New design…"
+                note="Start from a wall size and preset"
+                onClick={() => {
+                  setDesignOpen(false);
+                  onNewDesign();
+                }}
+              />
+            </div>
+          )}
+        </div>
         <BarButton onClick={onOpenAi}>Visualize</BarButton>
         <BarButton onClick={() => onOpenInsights("materials")}>Plan</BarButton>
         <span className="mx-1 h-4 w-px bg-line" />
-        <BarButton onClick={onOpenAppearance}>Appearance</BarButton>
         <div className="relative">
           <button
             onClick={() => setExportOpen((v) => !v)}
@@ -99,11 +125,11 @@ export function TopBar({
           {exportOpen && (
             <div className="absolute right-0 z-30 mt-1 w-60 border border-line bg-paper py-1 shadow-panel">
               <MenuItem
-                title={dirty ? "Save now" : "Save now (up to date)"}
-                note="Store this design in this browser"
+                title="Appearance…"
+                note="Studio background and drawing feel"
                 onClick={() => {
                   setExportOpen(false);
-                  save();
+                  onOpenAppearance();
                 }}
               />
               <MenuItem
@@ -147,11 +173,23 @@ export function TopBar({
   );
 }
 
+function formatSaved(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "an earlier session";
+  return d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/** Toothed gear: hub, ring and eight square teeth. */
 function Gear() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.4}>
-      <circle cx="12" cy="12" r="3.2" />
-      <path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6" />
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.3} strokeLinejoin="round">
+      <path d="M10.6 2.6h2.8l.35 2.3 1.9.8 1.85-1.4 1.98 1.98-1.4 1.85.8 1.9 2.3.35v2.8l-2.3.35-.8 1.9 1.4 1.85-1.98 1.98-1.85-1.4-1.9.8-.35 2.3h-2.8l-.35-2.3-1.9-.8-1.85 1.4-1.98-1.98 1.4-1.85-.8-1.9-2.3-.35v-2.8l2.3-.35.8-1.9-1.4-1.85 1.98-1.98 1.85 1.4 1.9-.8z" />
+      <circle cx="12" cy="12" r="3.1" />
     </svg>
   );
 }
