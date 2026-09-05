@@ -198,8 +198,44 @@ export function PropertiesPanel() {
           </Section>
         )}
 
+        {comp.type === "base-cabinet" && (
+          <Section label="Top drawer">
+            <div className="grid grid-cols-2 gap-1">
+              <MiniButton
+                active={comp.topDrawer !== false}
+                onClick={() => patch({ topDrawer: true })}
+              >
+                With drawer
+              </MiniButton>
+              <MiniButton
+                active={comp.topDrawer === false}
+                onClick={() => patch({ topDrawer: false })}
+              >
+                Doors only
+              </MiniButton>
+            </div>
+          </Section>
+        )}
+
+        {comp.type === "window" && (
+          <Section label="Window treatment">
+            <div className="grid grid-cols-2 gap-1">
+              {WINDOW_TREATMENTS.map((t) => (
+                <MiniButton
+                  key={t.id}
+                  active={(comp.windowTreatment ?? "none") === t.id}
+                  onClick={() => patch({ windowTreatment: t.id as WindowTreatmentId })}
+                >
+                  {t.label}
+                </MiniButton>
+              ))}
+            </div>
+          </Section>
+        )}
+
         {comp.type === "sink" && (
           <Section label="Faucet holes">
+
             <div className="grid grid-cols-3 gap-1">
               {([1, 2, 3] as FaucetHoles[]).map((n) => (
                 <MiniButton
