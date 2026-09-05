@@ -330,12 +330,46 @@ function sinkArt(comp: KComponent, f: ReturnType<typeof finishOf>) {
   const spoutTop = h * 0.18;
   const reach = Math.min(6, w * 0.22);
 
-  return (
+  const basin = (
     <g>
-      {/* subtle basin-width footprint */}
       <line x1={0} y1={deck} x2={w} y2={deck} {...line} strokeDasharray="2 2" strokeWidth={0.4} opacity={0.55} />
       <line x1={0} y1={deck - 1.6} x2={0} y2={deck} {...line} strokeWidth={0.4} opacity={0.55} />
       <line x1={w} y1={deck - 1.6} x2={w} y2={deck} {...line} strokeWidth={0.4} opacity={0.55} />
+    </g>
+  );
+
+  // Two-hole (bridge) set: separate hot/cold handles joined by a horizontal
+  // pipe, with a gooseneck faucet rising from the middle of that pipe.
+  if (holes === 2) {
+    const spread = Math.min(7, Math.max(4.5, w * 0.2));
+    const pipeY = deck - Math.max(2.5, h * 0.16);
+    return (
+      <g>
+        {basin}
+        {/* handle stems up from the deck */}
+        <line x1={cx - spread} y1={deck} x2={cx - spread} y2={pipeY} {...line} strokeWidth={0.9} />
+        <line x1={cx + spread} y1={deck} x2={cx + spread} y2={pipeY} {...line} strokeWidth={0.9} />
+        {/* connecting pipe */}
+        <line x1={cx - spread} y1={pipeY} x2={cx + spread} y2={pipeY} {...line} strokeWidth={0.9} />
+        {/* cross handles */}
+        <line x1={cx - spread - 1.6} y1={pipeY - 1.4} x2={cx - spread + 1.6} y2={pipeY - 1.4} {...line} strokeWidth={0.9} />
+        <line x1={cx + spread - 1.6} y1={pipeY - 1.4} x2={cx + spread + 1.6} y2={pipeY - 1.4} {...line} strokeWidth={0.9} />
+        <line x1={cx - spread} y1={pipeY} x2={cx - spread} y2={pipeY - 1.4} {...line} strokeWidth={0.9} />
+        <line x1={cx + spread} y1={pipeY} x2={cx + spread} y2={pipeY - 1.4} {...line} strokeWidth={0.9} />
+        {/* faucet from the pipe centre */}
+        <line x1={cx} y1={pipeY} x2={cx} y2={spoutTop + 1.5} {...line} strokeWidth={0.9} />
+        <path
+          d={`M ${cx} ${spoutTop + 1.5} C ${cx} ${spoutTop - 1} ${cx + reach} ${spoutTop - 1} ${cx + reach} ${spoutTop + 2.5}`}
+          {...line}
+          strokeWidth={0.9}
+        />
+      </g>
+    );
+  }
+
+  return (
+    <g>
+      {basin}
       {/* faucet: column + gooseneck */}
       <line x1={cx} y1={deck} x2={cx} y2={spoutTop + 1.5} {...line} strokeWidth={0.9} />
       <path
@@ -343,16 +377,94 @@ function sinkArt(comp: KComponent, f: ReturnType<typeof finishOf>) {
         {...line}
         strokeWidth={0.9}
       />
-      {/* controls vary with hole count */}
       {holes === 1 && <line x1={cx - 1.6} y1={deck * 0.62} x2={cx + 1.6} y2={deck * 0.62} {...line} strokeWidth={0.9} />}
-      {holes >= 2 && (
-        <line x1={cx - 5} y1={deck} x2={cx - 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
-      )}
       {holes === 3 && (
-        <line x1={cx + 5} y1={deck} x2={cx + 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
+        <>
+          <line x1={cx - 5} y1={deck} x2={cx - 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
+          <line x1={cx + 5} y1={deck} x2={cx + 5} y2={deck - h * 0.3} {...line} strokeWidth={0.9} />
+          <circle cx={cx - 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />
+          <circle cx={cx + 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />
+        </>
       )}
-      {holes >= 2 && <circle cx={cx - 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />}
-      {holes === 3 && <circle cx={cx + 5} cy={deck - h * 0.3} r={0.8} fill={f.ink} />}
+    </g>
+  );
+}
+
+/** Treatments drawn over the window opening. */
+function windowTreatmentArt(comp: KComponent, f: ReturnType<typeof finishOf>) {
+  const { w, h } = comp;
+  const t = comp.windowTreatment ?? "none";
+  if (t === "none") return null;
+  const line = { stroke: f.line, strokeWidth: 0.5, fill: "none", vectorEffect: "non-scaling-stroke" as const };
+  const solid = { ...line, fill: f.fill };
+
+  if (t === "valence") {
+    const vh = Math.min(7, h * 0.16);
+    return (
+      <g>
+        <path
+          d={`M -1.5 -1.5 L ${w + 1.5} -1.5 L ${w + 1.5} ${vh} Q ${w / 2} ${vh + 3} -1.5 ${vh} Z`}
+          {...solid}
+        />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <line key={i} x1={((i + 1) * w) / 6} y1={-1} x2={((i + 1) * w) / 6} y2={vh + 1.2} {...line} />
+        ))}
+      </g>
+    );
+  }
+
+  if (t === "roman-shade") {
+    const sh = h * 0.34;
+    const folds = 3;
+    return (
+      <g>
+        <rect x={-1.5} y={-1.5} width={w + 3} height={sh} {...solid} />
+        {Array.from({ length: folds }).map((_, i) => {
+          const y = -1.5 + ((i + 1) * sh) / (folds + 1);
+          return (
+            <path key={i} d={`M -1.5 ${y} Q ${w / 2} ${y + 2.2} ${w + 1.5} ${y}`} {...line} />
+          );
+        })}
+        <path d={`M -1.5 ${sh - 1.5} Q ${w / 2} ${sh + 1.6} ${w + 1.5} ${sh - 1.5}`} {...line} strokeWidth={0.9} />
+      </g>
+    );
+  }
+
+  if (t === "cafe-curtain") {
+    const top = h * 0.46;
+    const panels = 2;
+    return (
+      <g>
+        <line x1={-1.5} y1={top} x2={w + 1.5} y2={top} {...line} strokeWidth={0.9} />
+        {Array.from({ length: panels }).map((_, p) => {
+          const px = p === 0 ? 0 : w / 2;
+          const pw = w / 2;
+          return (
+            <g key={p}>
+              <rect x={px} y={top} width={pw} height={h - top} {...solid} />
+              {Array.from({ length: 4 }).map((_, i) => {
+                const x = px + ((i + 1) * pw) / 5;
+                return (
+                  <path key={i} d={`M ${x} ${top + 1} Q ${x + 1.2} ${(top + h) / 2} ${x} ${h}`} {...line} />
+                );
+              })}
+            </g>
+          );
+        })}
+      </g>
+    );
+  }
+
+  // blinds
+  const slats = Math.max(5, Math.round(h / 4));
+  return (
+    <g>
+      <rect x={-1.5} y={-1.5} width={w + 3} height={2.6} {...solid} />
+      {Array.from({ length: slats }).map((_, i) => {
+        const y = 2 + ((i + 1) * (h - 3)) / (slats + 1);
+        return <line key={i} x1={1} y1={y} x2={w - 1} y2={y} {...line} />;
+      })}
+      <line x1={w - 3.5} y1={1.5} x2={w - 3.5} y2={h - 2} {...line} strokeDasharray="1 1.5" />
     </g>
   );
 }
