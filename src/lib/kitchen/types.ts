@@ -44,6 +44,7 @@ export type HandleSideId = "left" | "right" | "center";
 export type FaucetHoles = 1 | 2 | 3;
 export type FridgeStyleId = "french" | "side-by-side" | "top-freezer" | "bottom-freezer";
 export type FridgeHandlesId = "visible" | "hidden";
+export type WindowTreatmentId = "none" | "roman-shade" | "cafe-curtain" | "blinds" | "valence";
 
 /** All measurements are real-world inches. Origin = bottom-left of the wall. */
 export interface KComponent {
@@ -61,6 +62,9 @@ export interface KComponent {
   faucetHoles?: FaucetHoles;
   fridgeStyle?: FridgeStyleId;
   fridgeHandles?: FridgeHandlesId;
+  /** base cabinet: a shallow drawer above the doors */
+  topDrawer?: boolean;
+  windowTreatment?: WindowTreatmentId;
   groupId?: string | null;
 }
 

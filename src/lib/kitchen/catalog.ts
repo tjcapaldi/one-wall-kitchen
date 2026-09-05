@@ -404,6 +404,14 @@ export const HANDLE_SIDES = [
   { id: "center", label: "Center" },
 ] as const;
 
+export const WINDOW_TREATMENTS = [
+  { id: "none", label: "None" },
+  { id: "roman-shade", label: "Roman shade" },
+  { id: "cafe-curtain", label: "Café curtain" },
+  { id: "blinds", label: "Blinds" },
+  { id: "valence", label: "Valence" },
+] as const;
+
 /** Cabinet types drawn with hinged doors (handle orientation applies). */
 export const DOOR_CABINETS: ComponentType[] = ["base-cabinet", "upper-cabinet", "tall-cabinet"];
 
@@ -447,6 +455,8 @@ export function createComponent(
     ...(type === "refrigerator"
       ? { fridgeStyle: "french" as const, fridgeHandles: "visible" as const }
       : {}),
+    ...(type === "base-cabinet" ? { topDrawer: true } : {}),
+    ...(type === "window" ? { windowTreatment: "none" as const } : {}),
     groupId: null,
     ...overrides,
   };
