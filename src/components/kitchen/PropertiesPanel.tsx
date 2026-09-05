@@ -7,6 +7,7 @@ import {
   FRIDGE_STYLES,
   HANDLE_SIDES,
   HARDWARE,
+  WINDOW_TREATMENTS,
   finishOf,
   isDoorCabinet,
   doorLeaves,
@@ -21,6 +22,7 @@ import type {
   FridgeStyleId,
   HandleSideId,
   HardwareId,
+  WindowTreatmentId,
 } from "@/lib/kitchen/types";
 
 export function PropertiesPanel() {
