@@ -142,6 +142,7 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
           <rect x={2} y={2} width={w - 4} height={h - 4} {...common} />
           <line x1={w / 2} y1={2} x2={w / 2} y2={h - 2} {...common} />
           <line x1={2} y1={h / 2} x2={w - 2} y2={h / 2} {...common} />
+          {windowTreatmentArt(comp, f)}
         </g>
       );
     case "door":
