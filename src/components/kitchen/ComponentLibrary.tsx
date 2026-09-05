@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { CATALOG, CATEGORIES } from "@/lib/kitchen/catalog";
 import { useKitchen } from "@/lib/kitchen/store";
 import { inchLabel } from "@/lib/kitchen/format";
@@ -19,12 +20,26 @@ export function ComponentLibrary() {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between px-5 pb-3 pt-5">
         <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">Components</h2>
-        <button
-          onClick={() => setOpen(allOpen ? [] : CATEGORIES.map((c) => c.id))}
-          className="border border-transparent px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-ink-soft transition-colors hover:border-line hover:text-ink"
-        >
-          {allOpen ? "Collapse all" : "Expand all"}
-        </button>
+        <span className="flex items-center gap-1">
+          <button
+            onClick={() => setOpen(CATEGORIES.map((c) => c.id))}
+            disabled={allOpen}
+            aria-label="Expand all categories"
+            title="Expand all"
+            className="flex h-6 w-6 items-center justify-center border border-transparent text-ink-soft transition-colors hover:border-line hover:text-ink disabled:opacity-30 disabled:hover:border-transparent"
+          >
+            <ChevronsDown className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setOpen([])}
+            disabled={open.length === 0}
+            aria-label="Collapse all categories"
+            title="Collapse all"
+            className="flex h-6 w-6 items-center justify-center border border-transparent text-ink-soft transition-colors hover:border-line hover:text-ink disabled:opacity-30 disabled:hover:border-transparent"
+          >
+            <ChevronsUp className="h-3.5 w-3.5" />
+          </button>
+        </span>
       </div>
       <div className="flex-1 overflow-y-auto px-2 pb-8">
         {CATEGORIES.map((cat) => {
