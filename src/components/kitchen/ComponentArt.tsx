@@ -13,7 +13,25 @@ export function ComponentArt({ comp }: { comp: KComponent }) {
   const common = { stroke: f.line, strokeWidth: sw, fill: "none", vectorEffect: "non-scaling-stroke" as const };
 
   switch (comp.type) {
-    case "base-cabinet":
+    case "base-cabinet": {
+      const drawer = comp.topDrawer !== false;
+      const dh = drawer ? Math.min(7, h * 0.2) : 0;
+      return (
+        <g>
+          <rect x={0} y={0} width={w} height={h} {...common} fill={f.fill} />
+          {drawer && (
+            <g>
+              <line x1={0} y1={dh} x2={w} y2={dh} {...common} />
+              <rect x={1} y={1} width={w - 2} height={dh - 2} {...common} />
+              {hardwareMark(comp, f, w / 2, dh / 2, "h")}
+            </g>
+          )}
+          <g transform={`translate(0 ${dh})`}>
+            {doorFronts({ ...comp, h: h - dh }, f)}
+          </g>
+        </g>
+      );
+    }
     case "upper-cabinet":
     case "tall-cabinet":
       return (

@@ -69,6 +69,8 @@ export function validateDesign(input: unknown): Design {
       faucetHoles: c.faucetHoles,
       fridgeStyle: c.fridgeStyle,
       fridgeHandles: c.fridgeHandles,
+      topDrawer: c.topDrawer,
+      windowTreatment: c.windowTreatment,
       groupId: c.groupId ?? null,
     }));
 
