@@ -24,6 +24,13 @@ interface KitchenApi {
   replaceDesign: (d: Design, opts?: { dirty?: boolean }) => void;
   rename: (name: string) => void;
   setWall: (wall: { width: number; height: number }) => void;
+  /** Resize the wall from a base component set; components not fully inside are removed. */
+  resizeWall: (
+    wall: { width: number; height: number },
+    base: KComponent[],
+    opts?: { commit?: boolean },
+  ) => void;
+  setPalette: (p: Palette | null) => void;
   setSettings: (patch: Partial<DesignSettings>) => void;
   addComponent: (type: ComponentType, at?: { x: number; y: number }) => void;
   updateComponents: (
@@ -136,6 +143,18 @@ export function KitchenProvider({
           wall,
           components: d.components.map((c) => constrain(c, wall)),
         })),
+      resizeWall: (wall, base, opts) =>
+        commit(
+          (d) => ({
+            ...d,
+            wall,
+            components: base.filter(
+              (c) => c.x >= 0 && c.y >= 0 && c.x + c.w <= wall.width + 1e-6 && c.y + c.h <= wall.height + 1e-6,
+            ),
+          }),
+          opts?.commit ?? true,
+        ),
+      setPalette: (palette) => commit((d) => ({ ...d, palette })),
       setSettings: (patch) => commit((d) => ({ ...d, settings: { ...d.settings, ...patch } })),
       addComponent: (type, at) => {
         const entry = CATALOG[type];
