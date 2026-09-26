@@ -51,13 +51,16 @@ export function CanvasStage() {
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
+  const viewRef = useRef({ zoom: 1, offset: { x: 0, y: 0 } });
+  viewRef.current = { zoom, offset };
   const zoomAt = useCallback((factor: number, px: number, py: number) => {
-    setZoom((z) => {
-      const next = Math.min(4, Math.max(0.35, z * factor));
-      const k = next / z;
-      setOffset((o) => ({ x: px - (px - o.x) * k, y: py - (py - o.y) * k }));
-      return next;
-    });
+    const { zoom: z, offset: o } = viewRef.current;
+    const next = Math.min(4, Math.max(0.35, z * factor));
+    const k = next / z;
+    const nextOffset = { x: px - (px - o.x) * k, y: py - (py - o.y) * k };
+    viewRef.current = { zoom: next, offset: nextOffset };
+    setZoom(next);
+    setOffset(nextOffset);
   }, []);
 
   const zoomBy = useCallback(
