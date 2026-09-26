@@ -1,3 +1,4 @@
+import { CATALOG } from "./catalog";
 import type { FinishId, Palette } from "./types";
 
 export interface StyleDirection {
@@ -147,4 +148,21 @@ export function customStyle(finishes: Record<string, FinishId>): StyleDirection 
       note: "Your choice",
     }))),
   };
+}
+
+/** Which palette finish a component would receive (Visualize only). */
+export function paletteFinishFor(
+  c: { type: import("./types").ComponentType; y: number },
+  palette: Palette,
+): FinishId | undefined {
+  const role = (r: string) => palette.finishes.find((f) => f.role.toLowerCase().includes(r))?.finish;
+  const cabinets = role("cabinet");
+  const base = role("base") ?? cabinets;
+  const upper = role("upper") ?? cabinets;
+  const cat = CATALOG[c.type].category;
+  if (c.type === "open-shelving") return role("shelving") ?? upper;
+  if (cat === "cabinets") return c.y > 40 ? upper : base;
+  if (cat === "countertops") return role("counter");
+  if (cat === "appliances") return role("appliance");
+  return undefined;
 }

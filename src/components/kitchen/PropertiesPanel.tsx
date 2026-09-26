@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import {
   CATALOG,
   DOOR_STYLES,
-  FINISHES,
   FRIDGE_HANDLES,
   FRIDGE_STYLES,
   HANDLE_SIDES,
   HARDWARE,
   WINDOW_TREATMENTS,
-  finishOf,
   isDoorCabinet,
   doorLeaves,
 } from "@/lib/kitchen/catalog";
@@ -17,7 +15,6 @@ import { inchLabel, inchWithFeet, toFeetInches } from "@/lib/kitchen/format";
 import type {
   DoorStyleId,
   FaucetHoles,
-  FinishId,
   FridgeHandlesId,
   FridgeStyleId,
   HandleSideId,
@@ -35,7 +32,7 @@ export function PropertiesPanel() {
         <div className="px-5 py-6">
           <p className="text-xs leading-relaxed text-ink-soft">
             Nothing selected. Click a component on the wall to edit its dimensions, position and
-            finish. Shift-click or drag on the wall to select several.
+            dimensions. Shift-click or drag on the wall to select several.
           </p>
           <dl className="mt-6 space-y-3 border-t border-line pt-5 text-xs">
             <Row label="Wall width" value={`${inchLabel(design.wall.width)} in (${toFeetInches(design.wall.width)})`} />
@@ -82,14 +79,6 @@ export function PropertiesPanel() {
               <MiniButton onClick={duplicateSelected}>Duplicate</MiniButton>
               <MiniButton onClick={removeSelected}>Delete</MiniButton>
             </div>
-          </Section>
-          <Section label="Finish (all selected)">
-            <FinishGrid
-              value={selected[0].finish}
-              onChange={(finish) =>
-                updateComponents(selected.map((c) => ({ id: c.id, patch: { finish } })))
-              }
-            />
           </Section>
         </div>
       </PanelShell>
@@ -139,10 +128,6 @@ export function PropertiesPanel() {
           <p className="mt-2 text-[10px] text-ink-soft">
             Left edge at {inchWithFeet(comp.x)} · top at {inchWithFeet(comp.y + comp.h)}
           </p>
-        </Section>
-
-        <Section label="Finish">
-          <FinishGrid value={comp.finish} onChange={(finish) => patch({ finish })} />
         </Section>
 
         {entry.doorStyle && (
@@ -406,25 +391,6 @@ function NumberField({
   );
 }
 
-function FinishGrid({ value, onChange }: { value: FinishId; onChange: (f: FinishId) => void }) {
-  return (
-    <div className="grid grid-cols-5 gap-1">
-      {FINISHES.map((f) => (
-        <button
-          key={f.id}
-          title={f.label}
-          onClick={() => onChange(f.id)}
-          data-active={value === f.id ? "" : undefined}
-          className="h-7 border border-line data-[active]:ring-1 data-[active]:ring-ink data-[active]:ring-offset-1"
-          style={{ backgroundColor: f.fill }}
-        >
-          <span className="sr-only">{f.label}</span>
-        </button>
-      ))}
-      <p className="col-span-5 mt-1 text-[10px] text-ink-soft">{finishOf(value).label}</p>
-    </div>
-  );
-}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (

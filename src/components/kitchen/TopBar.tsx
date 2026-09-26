@@ -6,11 +6,13 @@ import { exportJson, exportPdf, exportPng } from "@/lib/kitchen/exporters";
 
 export function TopBar({
   onNewDesign,
+  onScratch,
   onOpenAppearance,
   onOpenAi,
   onOpenInsights,
 }: {
   onNewDesign: () => void;
+  onScratch: () => void;
   onOpenAppearance: () => void;
   onOpenAi: () => void;
   onOpenInsights: (tab: string) => void;
@@ -99,8 +101,16 @@ export function TopBar({
           {designOpen && (
             <div className="absolute right-0 z-30 mt-1 w-56 border border-line bg-paper py-1 shadow-panel">
               <MenuItem
-                title="New design…"
-                note="Start from a wall size and preset"
+                title="Start from scratch"
+                note="A blank wall at the default size"
+                onClick={() => {
+                  setDesignOpen(false);
+                  onScratch();
+                }}
+              />
+              <MenuItem
+                title="Start from a template…"
+                note="Choose a kitchen template"
                 onClick={() => {
                   setDesignOpen(false);
                   onNewDesign();

@@ -19,7 +19,8 @@ export interface CatalogEntry {
   max: { w: number; h: number };
   /** default distance from floor, inches. `null` = place on floor */
   defaultY: number;
-  finish: FinishId;
+  /** fixed drawing tone (not user-editable) */
+  tone: FinishId;
   doorStyle?: DoorStyleId;
   hardware?: HardwareId;
   resizable: { w: boolean; h: boolean };
@@ -49,7 +50,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 12, h: 30 },
     max: { w: 48, h: 36 },
     defaultY: 0,
-    finish: "white",
+    tone: "white",
     doorStyle: "shaker",
     hardware: "knob",
     resizable: { w: true, h: true },
@@ -67,7 +68,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 12, h: 30 },
     max: { w: 42, h: 36 },
     defaultY: 0,
-    finish: "white",
+    tone: "white",
     doorStyle: "slab",
     hardware: "pull",
     resizable: { w: true, h: true },
@@ -85,7 +86,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 12, h: 12 },
     max: { w: 48, h: 42 },
     defaultY: 54,
-    finish: "white",
+    tone: "white",
     doorStyle: "shaker",
     hardware: "knob",
     resizable: { w: true, h: true },
@@ -103,7 +104,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 60 },
     max: { w: 36, h: 96 },
     defaultY: 0,
-    finish: "white",
+    tone: "white",
     doorStyle: "panel",
     hardware: "pull",
     resizable: { w: true, h: true },
@@ -121,7 +122,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 8 },
     max: { w: 72, h: 42 },
     defaultY: 56,
-    finish: "light-oak",
+    tone: "light-oak",
     resizable: { w: true, h: true },
     price: 95,
     perFoot: true,
@@ -137,7 +138,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 1 },
     max: { w: 168, h: 3 },
     defaultY: 34.5,
-    finish: "concrete",
+    tone: "concrete",
     resizable: { w: true, h: true },
     price: 78,
     perFoot: true,
@@ -153,7 +154,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 24, h: 60 },
     max: { w: 42, h: 84 },
     defaultY: 0,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: true },
     price: 1850,
@@ -169,7 +170,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 24, h: 34 },
     max: { w: 48, h: 38 },
     defaultY: 0,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: false },
     price: 1450,
@@ -185,7 +186,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 24, h: 24 },
     max: { w: 36, h: 50 },
     defaultY: 30,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: true },
     price: 1650,
@@ -201,7 +202,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 32 },
     max: { w: 24, h: 35 },
     defaultY: 0,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: false },
     price: 780,
@@ -217,7 +218,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 20, h: 12 },
     max: { w: 36, h: 22 },
     defaultY: 54,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: true },
     price: 420,
@@ -233,7 +234,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 24, h: 12 },
     max: { w: 48, h: 36 },
     defaultY: 66,
-    finish: "stainless",
+    tone: "stainless",
     resizable: { w: true, h: true },
     price: 690,
     laborHours: 1.5,
@@ -248,7 +249,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 18 },
     max: { w: 84, h: 72 },
     defaultY: 42,
-    finish: "white",
+    tone: "white",
     resizable: { w: true, h: true },
     price: 0,
     laborHours: 0,
@@ -264,7 +265,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 24, h: 72 },
     max: { w: 60, h: 96 },
     defaultY: 0,
-    finish: "white",
+    tone: "white",
     hardware: "knob",
     resizable: { w: true, h: true },
     price: 0,
@@ -281,7 +282,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 18, h: 6 },
     max: { w: 42, h: 12 },
     defaultY: 26,
-    finish: "stainless",
+    tone: "stainless",
     hardware: "bar",
     resizable: { w: true, h: true },
     price: 540,
@@ -297,7 +298,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 6, h: 10 },
     max: { w: 24, h: 48 },
     defaultY: 74,
-    finish: "black",
+    tone: "black",
     resizable: { w: true, h: true },
     price: 180,
     laborHours: 1,
@@ -312,7 +313,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 6, h: 8 },
     max: { w: 30, h: 48 },
     defaultY: 36,
-    finish: "clay",
+    tone: "clay",
     resizable: { w: true, h: true },
     price: 45,
     laborHours: 0,
@@ -327,7 +328,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 4, h: 4 },
     max: { w: 20, h: 24 },
     defaultY: 36,
-    finish: "off-white",
+    tone: "off-white",
     resizable: { w: true, h: true },
     price: 30,
     laborHours: 0,
@@ -342,7 +343,7 @@ export const CATALOG: Record<ComponentType, CatalogEntry> = {
     min: { w: 10, h: 18 },
     max: { w: 24, h: 32 },
     defaultY: 0,
-    finish: "light-oak",
+    tone: "light-oak",
     resizable: { w: true, h: true },
     price: 120,
     laborHours: 0,
@@ -424,6 +425,11 @@ export function doorLeaves(comp: { type: ComponentType; w: number }) {
   return isDoorCabinet(comp.type) && comp.w > 24 ? 2 : 1;
 }
 
+/** Default grayscale drawing tone for a component type. */
+export function toneOf(type: ComponentType) {
+  return finishOf(CATALOG[type].tone);
+}
+
 export function finishOf(id: FinishId) {
   return FINISHES.find((f) => f.id === id) ?? FINISHES[0];
 }
@@ -447,7 +453,6 @@ export function createComponent(
     w: entry.w,
     h: entry.h,
     depth: entry.depth,
-    finish: entry.finish,
     doorStyle: entry.doorStyle,
     hardware: entry.hardware,
     ...(isDoorCabinet(type) ? { handleSide: "center" as const } : {}),

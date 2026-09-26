@@ -14,34 +14,9 @@ import { MiniButton, Section } from "./PropertiesPanel";
 import { ConceptualView } from "./ConceptualView";
 
 
-function applyPaletteUpdates(
-  palette: Palette,
-  components: ReturnType<typeof useKitchen>["design"]["components"],
-) {
-  const role = (r: string): FinishId | undefined =>
-    palette.finishes.find((f) => f.role.toLowerCase().includes(r))?.finish;
-  const cabinets = role("cabinet");
-  const base = role("base") ?? cabinets;
-  const upper = role("upper") ?? cabinets;
-  const counter = role("counter");
-  const appliance = role("appliance");
-  const shelving = role("shelving") ?? upper;
-
-  return components
-    .map((c) => {
-      const cat = CATALOG[c.type].category;
-      let finish: FinishId | undefined;
-      if (c.type === "open-shelving") finish = shelving;
-      else if (cat === "cabinets") finish = c.y > 40 ? upper : base;
-      else if (cat === "countertops") finish = counter;
-      else if (cat === "appliances") finish = appliance;
-      return finish && finish !== c.finish ? { id: c.id, patch: { finish } } : null;
-    })
-    .filter(Boolean) as { id: string; patch: { finish: FinishId } }[];
-}
 
 export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { design, updateComponents } = useKitchen();
+  const { design, setPalette } = useKitchen();
   const [styleId, setStyleId] = useState<string>(STYLE_DIRECTIONS[0].id);
   const [paletteIdx, setPaletteIdx] = useState(0);
   const [custom, setCustom] = useState<Record<string, FinishId>>(() =>
@@ -72,13 +47,10 @@ export function AiPanel({ open, onClose }: { open: boolean; onClose: () => void 
   };
 
   const apply = () => {
-    const updates = applyPaletteUpdates(palette, design.components);
-    if (!updates.length) {
-      toast.info("This palette is already applied.");
-      return;
-    }
-    updateComponents(updates);
-    toast.success(`${palette.name} applied to ${updates.length} components`);
+    setPalette(palette);
+    toast.success(`${palette.name} saved as this design's finish plan`, {
+      description: "The drawing stays grayscale — finishes show in the conceptual view.",
+    });
   };
 
 

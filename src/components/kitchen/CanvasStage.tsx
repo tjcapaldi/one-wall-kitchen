@@ -4,6 +4,7 @@ import { useKitchen } from "@/lib/kitchen/store";
 import { inchLabel, toFeetInches } from "@/lib/kitchen/format";
 import type { ComponentType, KComponent } from "@/lib/kitchen/types";
 import { ComponentArt } from "./ComponentArt";
+import { WALL_LIMITS } from "./NewDesignDialog";
 
 const MARGIN = 22; // inches of drawing margin for dimension lines
 const SNAP_TOLERANCE = 2.5; // inches
@@ -31,7 +32,16 @@ export function CanvasStage() {
     beginTransaction,
     removeSelected,
     duplicateSelected,
+    resizeWall,
   } = useKitchen();
+  const [vp, setVp] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setVp({ w: el.clientWidth, h: el.clientHeight }));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const svgRef = useRef<SVGSVGElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const drag = useRef<DragState | null>(null);
@@ -41,13 +51,16 @@ export function CanvasStage() {
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
+  const viewRef = useRef({ zoom: 1, offset: { x: 0, y: 0 } });
+  viewRef.current = { zoom, offset };
   const zoomAt = useCallback((factor: number, px: number, py: number) => {
-    setZoom((z) => {
-      const next = Math.min(4, Math.max(0.35, z * factor));
-      const k = next / z;
-      setOffset((o) => ({ x: px - (px - o.x) * k, y: py - (py - o.y) * k }));
-      return next;
-    });
+    const { zoom: z, offset: o } = viewRef.current;
+    const next = Math.min(4, Math.max(0.35, z * factor));
+    const k = next / z;
+    const nextOffset = { x: px - (px - o.x) * k, y: py - (py - o.y) * k };
+    viewRef.current = { zoom: next, offset: nextOffset };
+    setZoom(next);
+    setOffset(nextOffset);
   }, []);
 
   const zoomBy = useCallback(
@@ -140,6 +153,37 @@ export function CanvasStage() {
     beginTransaction();
     drag.current = { mode: "resize", handle, startX: start.x, startY: start.y, origin: [{ ...comp }] };
     (e.target as Element).setPointerCapture?.(e.pointerId);
+  };
+
+  const onPointerDownWall = (e: React.PointerEvent, axis: "w" | "h") => {
+    e.stopPropagation();
+    e.preventDefault();
+    const svg = svgRef.current;
+    if (!svg) return;
+    const scale = svg.getBoundingClientRect().width / (wallW + MARGIN * 2);
+    const base = design.components.map((c) => ({ ...c }));
+    const start = { x: e.clientX, y: e.clientY, w: wallW, h: wallH };
+    const { snap, gridSize } = design.settings;
+    beginTransaction();
+    const move = (ev: PointerEvent) => {
+      let w = start.w;
+      let h = start.h;
+      if (axis === "w") w = start.w + (ev.clientX - start.x) / scale;
+      else h = start.h - (ev.clientY - start.y) / scale;
+      if (snap) {
+        w = Math.round(w / gridSize) * gridSize;
+        h = Math.round(h / gridSize) * gridSize;
+      }
+      w = Math.min(WALL_LIMITS.maxW, Math.max(WALL_LIMITS.minW, round(w)));
+      h = Math.min(WALL_LIMITS.maxH, Math.max(WALL_LIMITS.minH, round(h)));
+      resizeWall({ width: w, height: h }, base, { commit: false });
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
   };
 
   const onPointerDownCanvas = (e: React.PointerEvent) => {
@@ -468,6 +512,20 @@ export function CanvasStage() {
             vertical
             label={toFeetInches(wallH)}
           />
+          <WallHandle
+            cx={wallW}
+            cy={wallH + MARGIN * 0.55}
+            cursor="cursor-ew-resize"
+            label="Drag to change wall width"
+            onPointerDown={(e) => onPointerDownWall(e, "w")}
+          />
+          <WallHandle
+            cx={-MARGIN * 0.55}
+            cy={0}
+            cursor="cursor-ns-resize"
+            label="Drag to change wall height"
+            onPointerDown={(e) => onPointerDownWall(e, "h")}
+          />
 
           {selected.length === 1 && (
             <DimensionLine
@@ -486,8 +544,9 @@ export function CanvasStage() {
             <div className="max-w-xs text-center">
               <p className="font-display text-2xl text-ink">An empty wall</p>
               <p className="mt-2 text-xs leading-relaxed text-ink-soft">
-                Drag a component from the library, or click one to place it. Everything is measured
-                in real inches.
+                Drag a component from the library, or click one to place it. Drag the ends of the
+                dimension lines to resize the wall. Prefer a head start? Pick a template from the
+                Design menu.
               </p>
             </div>
           </div>
@@ -499,7 +558,9 @@ export function CanvasStage() {
       </div>
       </div>
 
-      <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
+      <ScrollBars vp={vp} zoom={zoom} offset={offset} setOffset={setOffset} />
+
+      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
         <button
           onClick={() => zoomBy(1 / 1.2)}
           className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
@@ -526,6 +587,106 @@ export function CanvasStage() {
         </button>
       </div>
     </div>
+  );
+}
+
+function WallHandle({
+  cx,
+  cy,
+  cursor,
+  label,
+  onPointerDown,
+}: {
+  cx: number;
+  cy: number;
+  cursor: string;
+  label: string;
+  onPointerDown: (e: React.PointerEvent) => void;
+}) {
+  return (
+    <g className={cursor} onPointerDown={onPointerDown}>
+      <title>{label}</title>
+      <circle cx={cx} cy={cy} r={5} fill="transparent" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r={1.8}
+        fill="var(--drawing-wall)"
+        stroke="var(--drawing-ink)"
+        strokeWidth={1}
+        vectorEffect="non-scaling-stroke"
+      />
+    </g>
+  );
+}
+
+/** Contextual scroll bars: appear only when the zoomed drawing extends past the view. */
+function ScrollBars({
+  vp,
+  zoom,
+  offset,
+  setOffset,
+}: {
+  vp: { w: number; h: number };
+  zoom: number;
+  offset: { x: number; y: number };
+  setOffset: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
+}) {
+  const axis = (size: number, off: number) => {
+    const lo = Math.min(0, off);
+    const hi = Math.max(size, off + size * zoom);
+    const range = hi - lo;
+    const visible = size > 0 && range - size > 1;
+    return { visible, range, start: (0 - lo) / range, len: size / range };
+  };
+  const hx = axis(vp.w, offset.x);
+  const vy = axis(vp.h, offset.y);
+
+  const drag = (e: React.PointerEvent, dir: "x" | "y") => {
+    e.preventDefault();
+    e.stopPropagation();
+    const a = dir === "x" ? hx : vy;
+    const size = dir === "x" ? vp.w : vp.h;
+    const startP = dir === "x" ? e.clientX : e.clientY;
+    const startO = offset[dir];
+    // bound pan to the content: offset in [size - size*zoom, 0] when zoomed in
+    const minO = Math.min(0, size - size * zoom);
+    const maxO = Math.max(0, size - size * zoom);
+    const move = (ev: PointerEvent) => {
+      const d = ((dir === "x" ? ev.clientX : ev.clientY) - startP) * (a.range / size);
+      const next = Math.min(maxO, Math.max(minO, startO - d));
+      setOffset((o) => ({ ...o, [dir]: next }));
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
+
+  const thumb = "absolute rounded-full bg-ink/30 transition-colors hover:bg-ink/50";
+  return (
+    <>
+      {hx.visible && (
+        <div className="absolute bottom-1 left-2 right-3 z-10 h-2" aria-label="Horizontal scroll">
+          <div
+            className={thumb + " top-0 h-2 cursor-grab"}
+            style={{ left: `${hx.start * 100}%`, width: `${hx.len * 100}%` }}
+            onPointerDown={(e) => drag(e, "x")}
+          />
+        </div>
+      )}
+      {vy.visible && (
+        <div className="absolute bottom-3 right-1 top-2 z-10 w-2" aria-label="Vertical scroll">
+          <div
+            className={thumb + " left-0 w-2 cursor-grab"}
+            style={{ top: `${vy.start * 100}%`, height: `${vy.len * 100}%` }}
+            onPointerDown={(e) => drag(e, "y")}
+          />
+        </div>
+      )}
+    </>
   );
 }
 

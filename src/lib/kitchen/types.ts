@@ -55,7 +55,6 @@ export interface KComponent {
   w: number;
   h: number;
   depth: number;
-  finish: FinishId;
   doorStyle?: DoorStyleId;
   hardware?: HardwareId;
   handleSide?: HandleSideId;

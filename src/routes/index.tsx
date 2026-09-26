@@ -2,13 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { KitchenProvider, useKitchen } from "@/lib/kitchen/store";
-import { createDesign, randomKitchenName } from "@/lib/kitchen/templates";
 import { loadAppearance, loadDesign, saveAppearance, savedDesignMeta } from "@/lib/kitchen/storage";
 import { CanvasStage } from "@/components/kitchen/CanvasStage";
 import { ComponentLibrary } from "@/components/kitchen/ComponentLibrary";
 import { PropertiesPanel } from "@/components/kitchen/PropertiesPanel";
 import { TopBar } from "@/components/kitchen/TopBar";
-import { NewDesignDialog } from "@/components/kitchen/NewDesignDialog";
+import { NewDesignDialog, blankDesign } from "@/components/kitchen/NewDesignDialog";
 import { AppearancePanel } from "@/components/kitchen/AppearancePanel";
 import { AiPanel } from "@/components/kitchen/AiPanel";
 import { InsightsDialog } from "@/components/kitchen/InsightsDialog";
@@ -33,7 +32,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [initial] = useState<Design>(() => createDesign(randomKitchenName(), { width: 120, height: 96 }, "standard"));
+  const [initial] = useState<Design>(() => blankDesign());
   return (
     <KitchenProvider initial={initial}>
       <Editor />
@@ -71,6 +70,7 @@ function Editor() {
           setSavedMeta(savedDesignMeta());
           setNewOpen(true);
         }}
+        onScratch={() => replaceDesign(blankDesign(), { dirty: true })}
         onOpenAppearance={() => setAppearanceOpen(true)}
         onOpenAi={() => setAiOpen(true)}
         onOpenInsights={(tab) => setInsights(tab)}

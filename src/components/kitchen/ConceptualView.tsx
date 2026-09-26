@@ -1,4 +1,5 @@
-import { CATALOG, finishOf } from "@/lib/kitchen/catalog";
+import { CATALOG, finishOf, toneOf } from "@/lib/kitchen/catalog";
+import { paletteFinishFor } from "@/lib/kitchen/ai";
 import type { Design } from "@/lib/kitchen/types";
 
 /**
@@ -30,7 +31,8 @@ export function ConceptualView({ design }: { design: Design }) {
       <rect x={0} y={0} width={W} height={H} fill="var(--drawing-wall)" stroke="var(--drawing-ink)" strokeWidth={0.6} vectorEffect="non-scaling-stroke" />
 
       {sorted.map((c) => {
-        const f = finishOf(c.finish);
+        const pf = design.palette ? paletteFinishFor(c, design.palette) : undefined;
+        const f = pf ? finishOf(pf) : toneOf(c.type);
         const top = H - c.y - c.h;
         const d = Math.min(c.depth, maxDepth) * k;
         const line = { stroke: f.line, strokeWidth: 0.4, vectorEffect: "non-scaling-stroke" as const };
