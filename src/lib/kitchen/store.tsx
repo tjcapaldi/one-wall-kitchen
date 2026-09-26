@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { CATALOG, createComponent, newId } from "./catalog";
-import type { ComponentType, Design, DesignSettings, KComponent } from "./types";
+import type { ComponentType, Design, DesignSettings, KComponent, Palette } from "./types";
 
 export type AlignKind = "left" | "hcenter" | "right" | "top" | "vcenter" | "bottom";
 

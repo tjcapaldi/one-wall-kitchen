@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import {
   CATALOG,
   DOOR_STYLES,
-  FINISHES,
   FRIDGE_HANDLES,
   FRIDGE_STYLES,
   HANDLE_SIDES,
   HARDWARE,
   WINDOW_TREATMENTS,
-  finishOf,
   isDoorCabinet,
   doorLeaves,
 } from "@/lib/kitchen/catalog";
@@ -17,7 +15,6 @@ import { inchLabel, inchWithFeet, toFeetInches } from "@/lib/kitchen/format";
 import type {
   DoorStyleId,
   FaucetHoles,
-  FinishId,
   FridgeHandlesId,
   FridgeStyleId,
   HandleSideId,
