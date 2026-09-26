@@ -1,13 +1,13 @@
-import { doorLeaves, finishOf } from "@/lib/kitchen/catalog";
+import { doorLeaves, toneOf, type finishOf } from "@/lib/kitchen/catalog";
 import type { KComponent } from "@/lib/kitchen/types";
 
 
 /**
  * Architectural line-art for one component, drawn in local inches with a
- * top-left origin. Fills come from the finish palette; everything else is line.
+ * top-left origin. Fills are fixed default tones; everything else is line.
  */
 export function ComponentArt({ comp }: { comp: KComponent }) {
-  const f = finishOf(comp.finish);
+  const f = toneOf(comp.type);
   const { w, h } = comp;
   const sw = 0.5;
   const common = { stroke: f.line, strokeWidth: sw, fill: "none", vectorEffect: "non-scaling-stroke" as const };

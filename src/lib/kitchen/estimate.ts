@@ -142,7 +142,7 @@ export interface GuideSection {
 
 export function buyingGuide(design: Design): GuideSection[] {
   const has = (t: ComponentType) => design.components.some((c) => c.type === t);
-  const finishes = Array.from(new Set(design.components.map((c) => finishOf(c.finish).label)));
+  const finishes = Array.from(new Set((design.palette?.finishes ?? []).map((f) => finishOf(f.finish).label)));
   const sections: GuideSection[] = [];
 
   const cabinetItems = (["base-cabinet", "drawer-cabinet", "upper-cabinet", "tall-cabinet", "open-shelving"] as ComponentType[])

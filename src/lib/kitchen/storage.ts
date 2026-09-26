@@ -62,7 +62,6 @@ export function validateDesign(input: unknown): Design {
       w: num(c.w, CATALOG[c.type].w),
       h: num(c.h, CATALOG[c.type].h),
       depth: num(c.depth, CATALOG[c.type].depth),
-      finish: c.finish ?? CATALOG[c.type].finish,
       doorStyle: c.doorStyle ?? CATALOG[c.type].doorStyle,
       hardware: c.hardware ?? CATALOG[c.type].hardware,
       handleSide: c.handleSide,
