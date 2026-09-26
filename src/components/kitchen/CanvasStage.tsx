@@ -557,7 +557,7 @@ export function CanvasStage() {
 
       <ScrollBars vp={vp} zoom={zoom} offset={offset} setOffset={setOffset} />
 
-      <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
+      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1 border border-line bg-shell/95 px-1 py-1 text-[11px] shadow-panel">
         <button
           onClick={() => zoomBy(1 / 1.2)}
           className="border border-transparent px-2 py-0.5 text-ink hover:border-line"
