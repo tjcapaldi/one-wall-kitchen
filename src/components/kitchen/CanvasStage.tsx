@@ -4,6 +4,8 @@ import { useKitchen } from "@/lib/kitchen/store";
 import { inchLabel, toFeetInches } from "@/lib/kitchen/format";
 import type { ComponentType, KComponent } from "@/lib/kitchen/types";
 import { ComponentArt } from "./ComponentArt";
+import { MeasureLayer, TAPE_CURSOR } from "./MeasureLayer";
+import { useMeasure } from "@/lib/kitchen/measure";
 import { WALL_LIMITS } from "./NewDesignDialog";
 
 const MARGIN = 22; // inches of drawing margin for dimension lines
@@ -34,6 +36,7 @@ export function CanvasStage() {
     duplicateSelected,
     resizeWall,
   } = useKitchen();
+  const measure = useMeasure();
   const [vp, setVp] = useState({ w: 0, h: 0 });
   useEffect(() => {
     const el = viewportRef.current;
@@ -110,6 +113,16 @@ export function CanvasStage() {
     [wallW, wallH],
   );
 
+  const gs = design.settings.gridSize;
+  const snapOn = design.settings.snap;
+  const measureSnap = useCallback(
+    (p: { x: number; y: number }) => {
+      const step = snapOn ? gs : 0.25;
+      return { x: Math.round(p.x / step) * step, y: Math.round(p.y / step) * step };
+    },
+    [snapOn, gs],
+  );
+
   const snapValue = useCallback(
     (value: number, candidates: number[]) => {
       let best = value;
@@ -128,6 +141,7 @@ export function CanvasStage() {
 
   const onPointerDownComponent = (e: React.PointerEvent, comp: KComponent) => {
     e.stopPropagation();
+    measure.selectMeasure(null);
     const isSelected = selection.includes(comp.id);
     if (e.shiftKey) toggleSelection(comp.id);
     else if (!isSelected) setSelection([comp.id]);
@@ -190,6 +204,8 @@ export function CanvasStage() {
     if (e.button !== 0) return;
     const start = toWall(e.clientX, e.clientY);
     setSelection([]);
+    measure.selectMeasure(null);
+    if (measure.measures.some((m) => !m.locked)) measure.setMeasures((ms) => ms.filter((m) => m.locked));
     drag.current = { mode: "marquee", startX: start.x, startY: start.y, origin: [] };
   };
 
@@ -298,6 +314,11 @@ export function CanvasStage() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (measure.selectedMeasure && (e.key === "Backspace" || e.key === "Delete")) {
+        e.preventDefault();
+        measure.remove(measure.selectedMeasure);
+        return;
+      }
       if (!selection.length) return;
       if (e.key === "Backspace" || e.key === "Delete") {
         e.preventDefault();
@@ -317,7 +338,7 @@ export function CanvasStage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selection, selected, removeSelected, duplicateSelected, updateComponents]);
+  }, [selection, selected, removeSelected, duplicateSelected, updateComponents, measure]);
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -355,7 +376,10 @@ export function CanvasStage() {
           id="owk-canvas"
           viewBox={viewBox}
           className="w-full select-none rounded-[2px] bg-paper shadow-drawing"
-          style={{ aspectRatio: `${wallW + MARGIN * 2} / ${wallH + MARGIN * 2}` }}
+          style={{
+            aspectRatio: `${wallW + MARGIN * 2} / ${wallH + MARGIN * 2}`,
+            cursor: measure.tool === "measure" ? TAPE_CURSOR : undefined,
+          }}
           onPointerDown={onPointerDownCanvas}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
@@ -537,6 +561,13 @@ export function CanvasStage() {
               subtle
             />
           )}
+          <MeasureLayer
+            toWall={toWall}
+            wallH={wallH}
+            extent={{ x: -MARGIN, y: -MARGIN, w: wallW + MARGIN * 2, h: wallH + MARGIN * 2 }}
+            snap={measureSnap}
+            onPointerTool={() => setSelection([])}
+          />
         </svg>
 
         {isEmpty && (
