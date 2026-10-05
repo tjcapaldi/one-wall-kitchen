@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { KitchenProvider, useKitchen } from "@/lib/kitchen/store";
+import { MeasureProvider } from "@/lib/kitchen/measure";
 import { loadAppearance, loadDesign, saveAppearance, savedDesignMeta } from "@/lib/kitchen/storage";
 import { CanvasStage } from "@/components/kitchen/CanvasStage";
 import { ComponentLibrary } from "@/components/kitchen/ComponentLibrary";
@@ -35,7 +36,9 @@ function Index() {
   const [initial] = useState<Design>(() => blankDesign());
   return (
     <KitchenProvider initial={initial}>
-      <Editor />
+      <MeasureProvider>
+        <Editor />
+      </MeasureProvider>
       <Toaster position="bottom-right" />
     </KitchenProvider>
   );

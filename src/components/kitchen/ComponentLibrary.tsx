@@ -1,3 +1,4 @@
+import { useMeasure, type Tool } from "@/lib/kitchen/measure";
 import { useState } from "react";
 import { ChevronsDown, ChevronsUp } from "lucide-react";
 import { CATALOG, CATEGORIES } from "@/lib/kitchen/catalog";
@@ -18,6 +19,7 @@ export function ComponentLibrary() {
 
   return (
     <div className="flex h-full flex-col">
+      <ToolBar />
       <div className="flex items-center justify-between px-5 pb-3 pt-5">
         <h2 className="text-[11px] uppercase tracking-[0.18em] text-ink-soft">Components</h2>
         <span className="flex items-center gap-1">
@@ -102,5 +104,41 @@ function Thumb({ type }: { type: ComponentType }) {
     >
       <ComponentArt comp={comp} />
     </svg>
+  );
+}
+
+function ToolBar() {
+  const { tool, setTool } = useMeasure();
+  const btn = (id: Tool, label: string, icon: React.ReactNode) => (
+    <button
+      onClick={() => setTool(id)}
+      aria-label={label}
+      aria-pressed={tool === id}
+      title={label}
+      data-active={tool === id ? "" : undefined}
+      className="flex h-8 w-8 items-center justify-center border border-transparent text-ink-soft transition-colors hover:border-line hover:text-ink data-[active]:border-ink data-[active]:bg-paper data-[active]:text-ink"
+    >
+      {icon}
+    </button>
+  );
+  return (
+    <div className="flex items-center gap-1 border-b border-line px-4 py-2" role="toolbar" aria-label="Tools">
+      {btn(
+        "pointer",
+        "Select (V)",
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round">
+          <path d="M3.5 2.5l9 5.2-4 1.1 2.4 4.2-1.6.9-2.4-4.2-3.1 2.8z" />
+        </svg>,
+      )}
+      {btn(
+        "measure",
+        "Tape measure (M)",
+        <svg width="18" height="16" viewBox="0 0 18 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+          <rect x="1.5" y="2.5" width="11" height="11" rx="2.5" />
+          <circle cx="7" cy="8" r="2.3" />
+          <path d="M12.5 10.5h4v3h-4M14.5 10.5v1.2" />
+        </svg>,
+      )}
+    </div>
   );
 }
