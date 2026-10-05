@@ -154,7 +154,7 @@ export function MeasureLayer({
         let ang = (Math.atan2(by - ay, bx - ax) * 180) / Math.PI;
         if (ang > 90 || ang < -90) ang += 180;
         const label = measureLabel(len);
-        const lw = label.length * 2.4 + 4;
+        const lw = label.length * 1.65 + 3;
         const isPending = m.id === pending;
         return (
           <g
@@ -189,16 +189,16 @@ export function MeasureLayer({
               <g transform={`translate(${mx} ${my}) rotate(${ang})`} pointerEvents="none">
                 <rect
                   x={-lw / 2}
-                  y={-9.5}
+                  y={-6.8}
                   width={lw}
-                  height={7}
+                  height={5}
                   rx={1}
                   fill="var(--color-paper, #fff)"
                   stroke="var(--drawing-ink)"
                   strokeWidth={0.5}
                   vectorEffect="non-scaling-stroke"
                 />
-                <text y={-4.4} textAnchor="middle" fontSize={4.2} fill="var(--drawing-ink)" className="font-ui">
+                <text y={-3.1} textAnchor="middle" fontSize={3} fill="var(--drawing-ink)" className="font-ui">
                   {label}
                 </text>
               </g>
@@ -208,7 +208,7 @@ export function MeasureLayer({
                 key={k}
                 cx={k === "a" ? ax : bx}
                 cy={k === "a" ? ay : by}
-                r={sel ? 2.2 : 1.8}
+                r={sel ? 1.6 : 1.3}
                 fill="var(--color-paper, #fff)"
                 stroke="var(--drawing-ink)"
                 strokeWidth={1.2}
@@ -234,7 +234,7 @@ export function MeasureLayer({
               </g>
             )}
             {m.locked && (
-              <g transform={`translate(${bx + 3} ${by - 7})`} pointerEvents="none">
+              <g transform={`translate(${bx + 2} ${by - 5}) scale(0.7)`} pointerEvents="none">
                 <rect x={0} y={2} width={4} height={3} fill="var(--drawing-ink)" />
                 <path d="M0.9 2V1.2a1.1 1.1 0 0 1 2.2 0V2" stroke="var(--drawing-ink)" strokeWidth={0.5} fill="none" />
               </g>
