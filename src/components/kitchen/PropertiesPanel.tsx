@@ -11,6 +11,8 @@ import {
   doorLeaves,
 } from "@/lib/kitchen/catalog";
 import { useKitchen } from "@/lib/kitchen/store";
+import { measureLength, useMeasure } from "@/lib/kitchen/measure";
+import { measureLabel } from "./MeasureLayer";
 import { inchLabel, inchWithFeet, toFeetInches } from "@/lib/kitchen/format";
 import type {
   DoorStyleId,
@@ -25,6 +27,34 @@ import type {
 export function PropertiesPanel() {
   const { selected, design, updateComponents, align, distribute, group, ungroup, duplicateSelected, removeSelected } =
     useKitchen();
+  const ms = useMeasure();
+
+  if (ms.current) {
+    const m = ms.current;
+    return (
+      <PanelShell title="Measurement">
+        <div className="space-y-6 px-5 py-5">
+          <dl className="space-y-3 text-xs">
+            <Row label="Length" value={measureLabel(measureLength(m))} />
+            <Row label="Horizontal" value={`${inchLabel(Math.abs(m.b.x - m.a.x))} in`} />
+            <Row label="Vertical" value={`${inchLabel(Math.abs(m.b.y - m.a.y))} in`} />
+          </dl>
+          <div className="grid grid-cols-3 gap-1">
+            <MiniButton onClick={() => ms.duplicate(m.id)}>Duplicate</MiniButton>
+            <MiniButton onClick={() => ms.update(m.id, { locked: !m.locked })} active={m.locked}>
+              {m.locked ? "Unlock" : "Lock"}
+            </MiniButton>
+            <MiniButton onClick={() => ms.remove(m.id)}>Delete</MiniButton>
+          </div>
+          <p className="text-[11px] leading-relaxed text-ink-soft">
+            {m.locked
+              ? "Locked — this reading stays on the wall when you click elsewhere or take new measurements."
+              : "Unlocked — clicking elsewhere or taking a new measurement clears it. Lock it to keep several on the wall."}
+          </p>
+        </div>
+      </PanelShell>
+    );
+  }
 
   if (selected.length === 0) {
     return (

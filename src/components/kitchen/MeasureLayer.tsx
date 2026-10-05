@@ -234,16 +234,10 @@ export function MeasureLayer({
               </g>
             )}
             {m.locked && (
-              <text
-                x={bx + 3}
-                y={by - 3}
-                fontSize={4}
-                fill="var(--drawing-ink)"
-                pointerEvents="none"
-                className="font-ui"
-              >
-                ⚿
-              </text>
+              <g transform={`translate(${bx + 3} ${by - 7})`} pointerEvents="none">
+                <rect x={0} y={2} width={4} height={3} fill="var(--drawing-ink)" />
+                <path d="M0.9 2V1.2a1.1 1.1 0 0 1 2.2 0V2" stroke="var(--drawing-ink)" strokeWidth={0.5} fill="none" />
+              </g>
             )}
           </g>
         );
