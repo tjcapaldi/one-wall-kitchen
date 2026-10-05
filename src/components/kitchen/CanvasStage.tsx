@@ -314,6 +314,10 @@ export function CanvasStage() {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (!e.metaKey && !e.ctrlKey && !e.altKey && (e.key === "v" || e.key === "m")) {
+        measure.setTool(e.key === "m" ? "measure" : "pointer");
+        return;
+      }
       if (measure.selectedMeasure && (e.key === "Backspace" || e.key === "Delete")) {
         e.preventDefault();
         measure.remove(measure.selectedMeasure);
